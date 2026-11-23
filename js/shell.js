@@ -90,7 +90,7 @@ class Shell {
     this.cfg = Object.assign({ mode: 'klasik', level: Number(Object.keys(game.levels)[0]), nTeams: 2, perTeam: 3, seconds: 60, classId: '' }, store.get('cfg:' + meta.id, {}));
     if (!game.levels[this.cfg.level]) this.cfg.level = Number(Object.keys(game.levels)[0]);
     if (!MODES[this.cfg.mode]) this.cfg.mode = 'klasik';
-    document.title = `${meta.title} · Kelas Main`;
+    document.title = `${meta.title} · JomMain`;
     document.addEventListener('keydown', (e) => this.onKey(e));
   }
 

@@ -1,6 +1,6 @@
 {
-  "name": "Kelas Main: Permainan Bilik Darjah KP2027",
-  "short_name": "Kelas Main",
+  "name": "JomMain: Permainan Bilik Darjah KP2027",
+  "short_name": "JomMain",
   "description": "Permainan bilik darjah untuk guru Malaysia, selari dengan KP2027.",
   "lang": "ms",
   "start_url": "./",

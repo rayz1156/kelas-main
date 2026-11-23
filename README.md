@@ -1,6 +1,8 @@
-# Kelas Main
+# JomMain
 
 Free classroom games for Malaysian teachers, aligned to the Kurikulum Persekolahan 2027 (KP2027) Dokumen Kurikulum published by BPK in 2026.
+
+Live: https://jommain.dtconnect.org/
 
 ## What it does
 - Whole-class play from one projector, with 1 to 4 teams.

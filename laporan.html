@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Laporan PBD · Kelas Main</title>
+  <title>Laporan PBD · JomMain</title>
   <meta name="theme-color" content="#e2552d">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
@@ -14,7 +14,7 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="logo" href="./"><span class="logo-mark">🎲</span>Kelas Main</a>
+    <a class="logo" href="./"><span class="logo-mark">🎲</span>JomMain</a>
     <span class="spacer"></span>
     <a class="icon-btn" href="./" style="text-decoration:none">← Permainan</a>
   </header>
@@ -66,7 +66,7 @@
         classes.map((c) => h('option', { value: c.id, selected: c.id === classId }, c.name)));
       sel.addEventListener('change', () => { store.set('report:class', sel.value); renderRecords(); });
 
-      const exportAll = () => downloadFile(`kelas-main-rekod-${today()}.csv`, toCSV([
+      const exportAll = () => downloadFile(`jommain-rekod-${today()}.csv`, toCSV([
         ['Tarikh', 'Kelas', 'Subjek', 'Tahun/Tingkatan', 'Permainan', 'Tahap', 'SP', 'Pasukan', 'Murid', 'Betul', 'Soalan', 'TP', 'Adab'],
         ...records.map((r) => [r.at.slice(0, 16).replace('T', ' '), classes.find((c) => c.id === r.classId)?.name || '', r.subject, r.year, r.title,
           `TP${r.level} ${r.levelTitle}`, r.sp.join(' '), r.team, r.members.join('; '), r.right, r.asked, tpText(r.tp), r.adab.join('; ')]),
@@ -98,7 +98,7 @@
           grid[p] = grid[p] || {};
           grid[p][`${r.subject} ${s}`] = { tp: r.tp, adab: r.adab.length };
         }
-        const exportGrid = () => downloadFile(`kelas-main-${cls.name.replace(/\W+/g, '-')}-${today()}.csv`,
+        const exportGrid = () => downloadFile(`jommain-${cls.name.replace(/\W+/g, '-')}-${today()}.csv`,
           toCSV([['Murid', ...cols], ...cls.pupils.map((p) => [p, ...cols.map((c) => (grid[p]?.[c] ? tpText(grid[p][c].tp) : ''))])]));
         view.replaceChildren(toolbar,
           h('div', { class: 'row', style: { marginBottom: '10px' } },

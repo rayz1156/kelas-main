@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bina Set · Kelas Main</title>
+  <title>Bina Set · JomMain</title>
   <meta name="theme-color" content="#e2552d">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
@@ -14,7 +14,7 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="logo" href="./"><span class="logo-mark">🎲</span>Kelas Main</a>
+    <a class="logo" href="./"><span class="logo-mark">🎲</span>JomMain</a>
     <span class="spacer"></span>
     <a class="icon-btn" href="./" style="text-decoration:none">← Permainan</a>
   </header>
@@ -46,7 +46,7 @@
           const set = sanitizeSet(JSON.parse(await file.text()));
           if (!set) throw new Error('bad');
           store.set('sets', [...sets, { ...set, id: uid() }]); list();
-        } catch { alertBox.textContent = 'Fail ini bukan set Kelas Main yang sah.'; }
+        } catch { alertBox.textContent = 'Fail ini bukan set JomMain yang sah.'; }
       });
       const alertBox = h('p', { style: { color: 'var(--no)', minHeight: '1.2em' } });
 
