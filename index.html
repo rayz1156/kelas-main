@@ -17,6 +17,7 @@
   <header class="topbar">
     <a class="logo" href="./"><span class="logo-mark">🎲</span>JomMain</a>
     <span class="spacer"></span>
+    <span id="memberSlot"></span>
     <a class="icon-btn" href="laporan.html" style="text-decoration:none">📊 Laporan PBD</a>
     <button class="icon-btn" id="theme" type="button" title="Tema terang atau gelap">🌓</button>
   </header>
@@ -31,6 +32,8 @@
         <kbd title="Tekan / untuk mencari">/</kbd>
       </label>
     </section>
+
+    <div class="join-strip" id="joinStrip" hidden></div>
 
     <details class="panel quick-guide">
       <summary>🎓 Baru di sini? Cara guna JomMain dalam 4 langkah</summary>
@@ -85,6 +88,7 @@
   <script type="module">
     import { h, store, applyTheme, cycleTheme, registerSW } from './js/core.js';
     import { GAMES } from './js/data.js';
+    import { ready as memberReady, isMember, badge, DAFTAR_URL, rememberBack } from './js/ahli.js';
     // Defined here, not imported: a visitor's service worker may still serve last version's data.js on the first load after an update.
     const spLabel = (s) => (/^\d/.test(s) ? 'SP ' + s : s);
     const GENRES = ['Kuiz pasukan', 'Misi cerita', 'Simulasi', 'Bina dan padan', 'Bacaan dan analisis', 'Muzik dan bunyi', 'Aksi 2D'];
@@ -242,6 +246,16 @@
       if (e.key === '/' && document.activeElement !== qInput && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)) { e.preventDefault(); qInput.focus(); }
     });
     render();
+    memberReady.then(() => {
+      document.getElementById('memberSlot').replaceChildren(badge());
+      const strip = document.getElementById('joinStrip');
+      strip.hidden = isMember();
+      if (!isMember()) strip.replaceChildren(
+        h('span', { class: 'join-emoji', 'aria-hidden': 'true' }, '⭐'),
+        h('div', {}, h('b', {}, 'Semua permainan boleh dicuba pada TP1 dan TP2.'), ' Ahli DIMENSI (percuma) dapat TP3 dan TP4, mod Papan Kejutan dan Lumba Masa, 4 pasukan, simpanan Laporan PBD dan Bina Set tanpa had.'),
+        h('a', { class: 'btn green', href: DAFTAR_URL, onclick: () => rememberBack() }, '✨ Daftar percuma'),
+        h('a', { class: 'link-btn', href: './ahli.html', onclick: () => rememberBack() }, 'Saya sudah ahli'));
+    });
   </script>
 </body>
 </html>

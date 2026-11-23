@@ -3,6 +3,7 @@
 import { $, h, shuffle, store, sfx, speak, confetti, toggleFullscreen, isMuted, setMuted, uid, applyTheme, registerSW } from './core.js';
 import { TP, ADAB, MODES, gameById, maxTPFor, spLabel } from './data.js';
 import { loadSet, buildSetGame } from './games/set.js';
+import { ready as memberReady, isMember, gate, badge, FREE_MAX_TP, FREE_MAX_TEAMS } from './ahli.js';
 
 const TEAM_PRESETS = [
   { name: 'Harimau', icon: '🐯', color: '#e08a00' },
@@ -60,6 +61,7 @@ export async function boot() {
   applyTheme();
   registerSW();
   if (store.get('big', false)) document.documentElement.classList.add('big');
+  await memberReady;
   const id = new URLSearchParams(location.search).get('g');
   if (id === 'set') {
     const set = loadSet();
@@ -90,8 +92,25 @@ class Shell {
     this.cfg = Object.assign({ mode: 'klasik', level: Number(Object.keys(game.levels)[0]), nTeams: 2, perTeam: 3, seconds: 60, classId: '' }, store.get('cfg:' + meta.id, {}));
     if (!game.levels[this.cfg.level]) this.cfg.level = Number(Object.keys(game.levels)[0]);
     if (!MODES[this.cfg.mode]) this.cfg.mode = 'klasik';
+    this.limit();
     document.title = `${meta.title} · JomMain`;
     document.addEventListener('keydown', (e) => this.onKey(e));
+  }
+
+  // ---------- membership ----------
+  /** Free use: Klasik mode, TP1 and TP2, up to 2 teams. A teacher's own set keeps its level. */
+  locked(kind, value) {
+    if (isMember()) return false;
+    if (kind === 'mode') return value !== 'klasik';
+    if (kind === 'level') return !this.set && value > FREE_MAX_TP;
+    if (kind === 'teams') return value > FREE_MAX_TEAMS;
+    return false;
+  }
+
+  limit() {
+    if (this.locked('mode', this.cfg.mode)) this.cfg.mode = 'klasik';
+    if (this.locked('level', this.cfg.level)) this.cfg.level = Math.max(...Object.keys(this.game.levels).map(Number).filter((n) => !this.locked('level', n)));
+    if (this.locked('teams', this.cfg.nTeams)) this.cfg.nTeams = FREE_MAX_TEAMS;
   }
 
   // ---------- header ----------
@@ -132,8 +151,9 @@ class Shell {
     const levels = Object.entries(this.game.levels);
 
     const pressGroup = (items, current, onPick) => h('div', { class: 'row' }, items.map((it) => {
-      const b = h('button', { class: 'opt', type: 'button', 'aria-pressed': String(it.value === current) }, it.label, it.small ? h('small', {}, it.small) : null);
-      b.addEventListener('click', () => { onPick(it.value); this.setup(); });
+      const b = h('button', { class: 'opt' + (it.locked ? ' locked' : ''), type: 'button', 'aria-pressed': String(it.value === current) },
+        it.locked ? h('span', { class: 'lock', 'aria-label': 'Untuk ahli' }, '🔒 ') : null, it.label, it.small ? h('small', {}, it.small) : null);
+      b.addEventListener('click', () => { if (it.locked) { gate(it.lockName); return; } onPick(it.value); this.setup(); });
       return b;
     }));
 
@@ -160,7 +180,8 @@ class Shell {
         h('p', { class: 'tags', style: { marginTop: 0 } },
           h('span', { class: 'tag' }, `${this.meta.subject} · ${this.meta.level}`),
           h('span', { class: 'tag' }, this.meta.topic),
-          this.set?.shared ? h('button', { class: 'chip', type: 'button', onclick: (e) => this.saveShared(e.currentTarget) }, '💾 Simpan ke Set Saya') : null),
+          this.set?.shared ? h('button', { class: 'chip', type: 'button', onclick: (e) => this.saveShared(e.currentTarget) }, '💾 Simpan ke Set Saya') : null,
+          h('span', { class: 'spacer' }), badge()),
         h('button', { class: 'btn tut-open', type: 'button', onclick: () => this.tutorial() }, '🎓 Tutorial: cara bermain (guru dan murid)'),
         notes ? h('details', { class: 'panel notes' },
           h('summary', {}, '📘 Nota guru'),
@@ -168,17 +189,19 @@ class Shell {
           notes.extend ? h('p', {}, h('b', {}, 'Aktiviti susulan tanpa skrin: '), notes.extend) : null) : null,
         h('section', { class: 'panel' },
           h('h2', {}, '1. Pilih mod permainan'),
-          pressGroup(Object.entries(MODES).map(([k, m]) => ({ value: k, label: m.label, small: m.small })), this.cfg.mode, (v) => (this.cfg.mode = v))),
+          pressGroup(Object.entries(MODES).map(([k, m]) => ({ value: k, label: m.label, small: m.small, locked: this.locked('mode', k), lockName: `Mod ${m.label}` })), this.cfg.mode, (v) => (this.cfg.mode = v))),
         h('section', { class: 'panel' },
           h('h2', {}, '2. Pilih tahap'),
           pressGroup(levels.map(([n, lv]) => ({
             value: Number(n),
             label: `TP${n} ${TP[n].label}: ${lv.title}`,
             small: lv.sp.map(spLabel).join(', '),
+            locked: this.locked('level', Number(n)),
+            lockName: `TP${n} ${TP[n].label}`,
           })), this.cfg.level, (v) => (this.cfg.level = v))),
         h('section', { class: 'panel' },
           h('h2', {}, '3. Bilangan pasukan'),
-          pressGroup([1, 2, 3, 4].map((n) => ({ value: n, label: n === 1 ? '1 (seluruh kelas)' : String(n) })), this.cfg.nTeams, (v) => (this.cfg.nTeams = v)),
+          pressGroup([1, 2, 3, 4].map((n) => ({ value: n, label: n === 1 ? '1 (seluruh kelas)' : String(n), locked: this.locked('teams', n), lockName: `${n} pasukan` })), this.cfg.nTeams, (v) => (this.cfg.nTeams = v)),
           h('h2', { style: { marginTop: '18px' } }, 'Senarai nama (pilihan)'),
           h('div', { class: 'row' }, classSel,
             h('button', { class: 'icon-btn', type: 'button', onclick: drawPreview }, '🔀 Kocok semula'),
@@ -296,6 +319,7 @@ class Shell {
 
   // ---------- shared play pieces ----------
   play() {
+    this.limit();
     store.set('cfg:' + this.meta.id, this.cfg);
     this.teams = (this.draft || this.makeTeams(store.get('classes', []))).map((t) => ({ ...t, score: 0, right: 0, asked: 0 }));
     this.level = this.game.levels[this.cfg.level];
@@ -572,7 +596,9 @@ class Shell {
     });
 
     const saveBtn = h('button', { class: 'btn green', type: 'button' }, '💾 Simpan ke Laporan PBD');
+    if (!isMember()) saveBtn.prepend('🔒 ');
     saveBtn.addEventListener('click', () => {
+      if (!isMember()) { gate('Simpan ke Laporan PBD'); return; }
       const ok = this.save();
       saveBtn.disabled = true;
       saveBtn.textContent = ok ? '✅ Disimpan dalam peranti ini' : '⚠️ Tidak dapat menyimpan (storan pelayar disekat)';
@@ -594,7 +620,7 @@ class Shell {
         h('div', { class: 'row' },
           saveBtn,
           h('button', { class: 'btn secondary', type: 'button', onclick: () => this.play() }, '🔁 Main lagi'),
-          nextLevel ? h('button', { class: 'btn secondary', type: 'button', onclick: () => { this.cfg.level = nextLevel; this.play(); } }, `⬆️ TP${nextLevel} seterusnya`) : null,
+          nextLevel ? h('button', { class: 'btn secondary', type: 'button', onclick: () => { if (this.locked('level', nextLevel)) { gate(`TP${nextLevel} ${TP[nextLevel].label}`); return; } this.cfg.level = nextLevel; this.play(); } }, `${this.locked('level', nextLevel) ? '🔒' : '⬆️'} TP${nextLevel} seterusnya`) : null,
           h('button', { class: 'btn secondary', type: 'button', onclick: () => this.setup() }, '⚙️ Tetapan'),
           h('a', { class: 'btn secondary', href: './laporan.html', style: { textDecoration: 'none' } }, '📊 Laporan')),
       ),

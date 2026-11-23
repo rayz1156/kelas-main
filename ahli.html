@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ahli DIMENSI · JomMain</title>
+  <meta name="theme-color" content="#e2552d">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="./"><span class="logo-mark">🎲</span>JomMain</a>
+    <span class="spacer"></span>
+    <a class="icon-btn" href="./" style="text-decoration:none">← Utama</a>
+  </header>
+
+  <main class="wrap member-page">
+    <div id="view"><p class="note">Menyemak keahlian…</p></div>
+  </main>
+
+  <footer class="wrap">
+    Keahlian diuruskan oleh DIMENSI (Digital Transformation Society) di dtconnect.org. JomMain hanya menyimpan nombor ahli dan nama anda dalam pelayar peranti ini, untuk membuka akses penuh. Senarai nama murid dan rekod PBD tetap dalam peranti ini sahaja.
+  </footer>
+
+  <script type="module">
+    import { h, applyTheme, registerSW } from './js/core.js';
+    import { ready, isMember, memberInfo, signIn, signOut, benefitList, backUrl, DAFTAR_URL, PAUTAN_API, rememberBack } from './js/ahli.js';
+    applyTheme(); registerSW();
+    const view = document.getElementById('view');
+
+    // A ticket arrives in the URL fragment from the sign-in email or straight after registering.
+    // The fragment never reaches a server; it is removed from the address bar once read.
+    const m = location.hash.match(/[#&]t=([A-Za-z0-9_.-]+)/);
+    let justIn = false, badTicket = false;
+    await ready;
+    if (m) {
+      history.replaceState(null, '', location.pathname);
+      if (await signIn(m[1])) justIn = true; else badTicket = !isMember();
+    }
+
+    // A link opened while this page is already showing only changes the fragment, so read it again.
+    addEventListener('hashchange', () => { if (/[#&]t=/.test(location.hash)) location.reload(); });
+
+    const date = (s) => new Date(s * 1000).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    function memberView() {
+      const p = memberInfo();
+      const back = backUrl();
+      view.replaceChildren(
+        h('section', { class: 'hero' },
+          h('h1', {}, justIn ? `🎉 Selamat datang, ${p.nama}!` : '⭐ Anda ahli DIMENSI'),
+          h('p', {}, justIn ? 'Akses penuh JomMain sudah dibuka pada peranti ini.' : `Akses penuh JomMain aktif pada peranti ini untuk ${p.nama}.`)),
+        h('section', { class: 'panel member-card' },
+          h('div', { class: 'member-no' }, h('small', {}, 'No. ahli'), h('b', {}, p.no)),
+          h('p', {}, `Sah hingga ${date(p.exp)}. Untuk komputer kelas atau telefon lain, pilih "Saya sudah ahli" di peranti itu dan masukkan e-mel anda.`),
+          benefitList(),
+          h('div', { class: 'row' },
+            h('a', { class: 'btn green', href: back, style: { textDecoration: 'none' } }, back === './' ? '🎮 Mula bermain' : '↩️ Kembali ke permainan'),
+            h('button', { class: 'btn secondary', type: 'button', onclick: () => { if (confirm('Log keluar akses ahli daripada peranti ini? Rekod PBD dan senarai nama tidak dipadam.')) { signOut(); justIn = false; guestView(); } } }, 'Log keluar dari peranti ini'))));
+    }
+
+    function guestView() {
+      const email = h('input', { type: 'email', required: true, autocomplete: 'email', placeholder: 'e-mel yang anda daftarkan', 'aria-label': 'E-mel ahli' });
+      const msg = h('p', { class: 'form-msg', role: 'status' });
+      const send = h('button', { class: 'btn', type: 'submit' }, '📧 Hantar pautan log masuk');
+      const form = h('form', { class: 'row signin', onsubmit: async (e) => {
+        e.preventDefault();
+        if (!email.value.trim()) return;
+        send.disabled = true; msg.className = 'form-msg'; msg.textContent = 'Sedang dihantar…';
+        try {
+          const r = await fetch(PAUTAN_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emel: email.value.trim() }) });
+          const j = await r.json().catch(() => ({}));
+          msg.className = 'form-msg ' + (j.ok ? 'ok' : 'no');
+          msg.textContent = j.mesej || (j.ok ? 'Pautan dihantar. Semak e-mel anda.' : 'Tidak dapat menghantar pautan. Cuba lagi.');
+        } catch {
+          msg.className = 'form-msg no'; msg.textContent = 'Masalah sambungan internet. Cuba lagi.';
+        }
+        send.disabled = false;
+      } }, email, send);
+
+      view.replaceChildren(...[
+        h('section', { class: 'hero' },
+          h('h1', {}, '🔓 Buka akses penuh JomMain'),
+          h('p', {}, 'Semua permainan boleh dicuba pada TP1 dan TP2. Ahli DIMENSI mendapat versi penuh. Keahlian adalah percuma.')),
+        badTicket ? h('p', { class: 'panel form-msg no' }, 'Pautan ini tidak sah atau sudah tamat tempoh. Minta pautan baharu di bawah.') : null,
+        h('div', { class: 'member-grid' },
+          h('section', { class: 'panel' },
+            h('h2', {}, '✨ Belum ahli?'),
+            h('p', {}, 'Daftar sekali di dtconnect.org (pilih kategori "Guru"). Selepas menekan Daftar, anda dibawa kembali ke JomMain dengan akses penuh.'),
+            benefitList(),
+            h('a', { class: 'btn green', href: DAFTAR_URL, style: { textDecoration: 'none' } }, '✨ Daftar percuma')),
+          h('section', { class: 'panel' },
+            h('h2', {}, '🔑 Saya sudah ahli'),
+            h('p', {}, 'Masukkan e-mel yang anda gunakan semasa mendaftar. Kami hantar pautan log masuk. Tekan pautan itu pada peranti ini. Tiada kata laluan.'),
+            form, msg,
+            h('p', { class: 'note' }, 'Tiada e-mel? Semak folder spam. Pautan boleh diminta semula selepas 2 minit.')))].filter(Boolean));
+    }
+
+    isMember() ? memberView() : guestView();
+    if (!store_ok()) view.prepend(h('p', { class: 'panel form-msg no' }, 'Pelayar ini menyekat storan. Akses ahli tidak dapat disimpan. Cuba pelayar lain atau tetingkap biasa (bukan inkognito).'));
+    if (isMember() && justIn) rememberBack('./');
+
+    function store_ok() { try { localStorage.setItem('km:t', '1'); localStorage.removeItem('km:t'); return true; } catch { return false; } }
+  </script>
+</body>
+</html>

@@ -36,6 +36,9 @@
   <script type="module">
     import { h, store, uid, applyTheme, registerSW, downloadFile } from './js/core.js';
     import { TP } from './js/data.js';
+    import { ready as memberReady, isMember, gate } from './js/ahli.js';
+    await memberReady;
+    const members = (fn, what) => () => (isMember() ? fn() : gate(what));
     // Defined here, not imported: a visitor's service worker may still serve last version's data.js on the first load after an update.
     const spLabel = (s) => (/^\d/.test(s) ? 'SP ' + s : s);
     applyTheme(); registerSW();
@@ -80,7 +83,7 @@
       };
 
       const toolbar = h('div', { class: 'row', style: { marginBottom: '14px' } }, sel,
-        h('button', { class: 'btn', type: 'button', onclick: exportAll, disabled: !records.length }, '⬇️ Muat turun CSV'),
+        h('button', { class: 'btn', type: 'button', onclick: members(exportAll, 'Muat turun CSV'), disabled: !records.length }, isMember() ? '⬇️ Muat turun CSV' : '🔒 Muat turun CSV'),
         h('button', { class: 'btn secondary', type: 'button', onclick: clearAll, disabled: !records.length }, '🗑️ Padam semua'));
 
       if (!records.length) {
@@ -103,7 +106,7 @@
         view.replaceChildren(toolbar,
           h('div', { class: 'row', style: { marginBottom: '10px' } },
             h('h2', { style: { margin: 0 } }, `${cls.name}: TP terkini mengikut SP`),
-            h('button', { class: 'btn secondary', type: 'button', onclick: exportGrid, disabled: !cols.length }, '⬇️ CSV kelas ini')),
+            h('button', { class: 'btn secondary', type: 'button', onclick: members(exportGrid, 'Muat turun CSV'), disabled: !cols.length }, isMember() ? '⬇️ CSV kelas ini' : '🔒 CSV kelas ini')),
           cols.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'results' },
             h('thead', {}, h('tr', {}, h('th', {}, 'Murid'), cols.map((c) => h('th', {}, c)))),
             h('tbody', {}, cls.pupils.map((p) => h('tr', {}, h('td', {}, h('b', {}, p)),

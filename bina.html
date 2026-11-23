@@ -33,6 +33,9 @@
     import { h, store, uid, applyTheme, registerSW, downloadFile } from './js/core.js';
     import { TP, YEARS, SUBJECTS, SAMPLE_SET, maxTPFor } from './js/data.js';
     import { encodeSet, sanitizeSet } from './js/games/set.js';
+    import { ready as memberReady, isMember, gate, FREE_MAX_SETS } from './js/ahli.js';
+    await memberReady;
+    const canAdd = () => isMember() || store.get('sets', []).length < FREE_MAX_SETS;
     applyTheme(); registerSW();
     const view = document.getElementById('view');
 
@@ -45,6 +48,7 @@
         try {
           const set = sanitizeSet(JSON.parse(await file.text()));
           if (!set) throw new Error('bad');
+          if (!canAdd()) { gate('Lebih daripada 1 set soalan'); return; }
           store.set('sets', [...sets, { ...set, id: uid() }]); list();
         } catch { alertBox.textContent = 'Fail ini bukan set JomMain yang sah.'; }
       });
@@ -52,14 +56,15 @@
 
       view.replaceChildren(
         h('div', { class: 'row', style: { marginBottom: '16px' } },
-          h('button', { class: 'btn green', type: 'button', onclick: () => edit() }, '➕ Set baharu'),
-          h('button', { class: 'btn secondary', type: 'button', onclick: () => edit(null, structuredClone(SAMPLE_SET)) }, '✨ Mula daripada contoh'),
-          h('button', { class: 'btn secondary', type: 'button', onclick: () => fileInput.click() }, '📂 Import fail'),
+          h('button', { class: 'btn green', type: 'button', onclick: () => (canAdd() ? edit() : gate('Lebih daripada 1 set soalan')) }, canAdd() ? '➕ Set baharu' : '🔒 Set baharu'),
+          h('button', { class: 'btn secondary', type: 'button', onclick: () => (canAdd() ? edit(null, structuredClone(SAMPLE_SET)) : gate('Lebih daripada 1 set soalan')) }, '✨ Mula daripada contoh'),
+          h('button', { class: 'btn secondary', type: 'button', onclick: () => (canAdd() ? fileInput.click() : gate('Lebih daripada 1 set soalan')) }, '📂 Import fail'),
           fileInput),
         alertBox,
         sets.length ? h('div', { class: 'grid' }, sets.map((s) => {
-          const share = h('button', { class: 'icon-btn', type: 'button' }, '🔗 Salin pautan');
+          const share = h('button', { class: 'icon-btn', type: 'button' }, isMember() ? '🔗 Salin pautan' : '🔒 Salin pautan');
           share.addEventListener('click', async () => {
+            if (!isMember()) { gate('Kongsi set melalui pautan'); return; }
             const url = new URL('game.html?g=set', location.href).href + '#s=' + encodeSet(s);
             try { await navigator.clipboard.writeText(url); share.textContent = '✅ Pautan disalin'; }
             catch { prompt('Salin pautan ini:', url); }

@@ -385,3 +385,40 @@ a.game-card:hover .thumb .emoji { transform: scale(1.08) rotate(-4deg); transiti
   .f-chips > * { flex: none; }
   .row-scroll { grid-auto-columns: 82%; }
 }
+
+/* ---------- DIMENSI membership ---------- */
+.opt.locked { opacity: .72; border-style: dashed; }
+.opt.locked .lock { font-size: .9em; }
+.member-badge { white-space: nowrap; }
+.member-badge.on { border-color: var(--gold); background: #fff6dc; color: #6b4a00; }
+:root[data-theme="dark"] .member-badge.on { background: #3a2f12; color: #ffd978; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .member-badge.on { background: #3a2f12; color: #ffd978; } }
+.join-strip { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--surface); border: 2px solid var(--gold); border-radius: var(--radius); padding: 14px 18px; margin: 4px 0 16px; box-shadow: var(--shadow); }
+.join-strip[hidden] { display: none; }
+.join-strip > div { flex: 1; min-width: 240px; color: var(--ink-soft); }
+.join-strip b { color: var(--ink); }
+.join-emoji { font-size: 34px; }
+.gate-back { display: grid; place-items: center; padding: 16px; z-index: 60; }
+.gate { position: relative; background: var(--surface); border-radius: 22px; padding: 26px 24px 22px; max-width: 560px; width: 100%; max-height: calc(100vh - 32px); overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.gate h2 { margin: 6px 0 8px; font-size: 26px; line-height: 1.2; }
+.gate p { margin: 0 0 12px; color: var(--ink-soft); }
+.gate-x { position: absolute; top: 12px; right: 12px; }
+.gate-lock { font-size: 44px; }
+.gate-actions { margin-top: 14px; }
+.gate-actions .btn { text-decoration: none; }
+.perks { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 8px; }
+.perks li { display: grid; grid-template-columns: 30px 1fr; column-gap: 8px; align-items: start; }
+.perks li span { grid-row: span 2; font-size: 22px; }
+.perks small { color: var(--ink-soft); font-size: 14px; }
+.member-page .hero { padding-bottom: 8px; }
+.member-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; padding-bottom: 30px; }
+.member-grid h2 { margin-top: 0; }
+.member-card { max-width: 720px; margin-bottom: 30px; }
+.member-no { display: inline-flex; flex-direction: column; background: #fff6dc; color: #6b4a00; border: 2px solid var(--gold); border-radius: 14px; padding: 8px 16px; margin-bottom: 10px; }
+.member-no b { font-size: 26px; letter-spacing: .03em; }
+.signin input { flex: 1; min-width: 220px; font: inherit; font-size: 18px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); }
+.form-msg { min-height: 1.2em; font-weight: 800; margin: 10px 0 0; }
+.form-msg.ok { color: var(--ok); }
+.form-msg.no { color: var(--no); }
+.tags .spacer { flex: 1; }
+.join-strip .btn, .member-grid .btn, .member-card .btn { text-decoration: none; }

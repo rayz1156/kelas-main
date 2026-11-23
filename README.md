@@ -78,3 +78,9 @@ Then open http://localhost:8080.
 
 ## Hosting
 GitHub Pages from the `main` branch root. To move to Cloudflare Pages later, connect this repository there with no build command and output directory `/`.
+
+## DIMENSI membership
+Everyone can play every game at TP1 and TP2 in Klasik mode with up to 2 teams. Members of DIMENSI (free, dtconnect.org) get TP3 and TP4, Papan Kejutan and Lumba Masa, up to 4 teams, saving to Laporan PBD with CSV, and unlimited Bina Set sets with share links.
+- dtconnect.org signs a ticket (ECDSA P-256) when someone registers via `/daftar/?dari=jommain` or asks for a sign-in link on `ahli.html`. The WordPress side is the Code Snippets snippet "DIMENSI: akses ahli JomMain"; a reference copy is in `server/dimensi-jommain-snippet.php`.
+- `js/ahli.js` checks the ticket in the browser with the public key, so the site stays static. If the key in WordPress (option `dm_jm_keys`) is ever regenerated, update `PUBLIC_KEY` in `js/ahli.js` from `https://dtconnect.org/wp-json/dimensi/v1/jommain/kunci`.
+- This is a soft gate: the game code is still downloadable. It stops casual use, not a determined developer.
