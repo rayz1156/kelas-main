@@ -133,7 +133,18 @@ export const GAMES = [
     desc: 'Golongan kata, imbuhan, kata majmuk dan kata ganda, ragam dan susunan ayat, serta pembetulan kesalahan lazim.',
     ready: true,
   },
-  { id: 'detektif-berita', title: 'Detektif Berita', emoji: '🔎', subject: 'Bahasa Melayu', level: 'Tingkatan 1', topic: '3.0 Membaca', sp: ['3.1', '3.2'], desc: 'Kenal pasti berita palsu, berat sebelah atau tidak lengkap.', ready: false },
+  {
+    id: 'detektif-berita',
+    notes: { how: ['Baca berita bersama dahulu. Minta satu wakil pasukan membaca dengan sebutan dan intonasi yang betul (SP 3.1.1) sebelum soalan dijawab.', 'TP1 dan TP2 melatih teknik luncuran dan imbasan seperti yang dicadangkan dalam Nota. Beri masa 30 saat untuk mengimbas.', 'TP4 ialah respons kritis. Selepas setiap jawapan, minta pasukan menerangkan bukti dalam teks yang menyokong pilihan mereka.', 'Semua berita, tempat dan watak ialah rekaan. Tema mengikut Nota: PKJR, Pendidikan Kewangan dan ESD.'], extend: 'Bawa keratan akhbar atau mesej tular sebenar (tanpa maklumat peribadi). Pasukan menilai sumber, kelengkapan 5W1H dan berat sebelah, kemudian menulis semula berita itu supaya lengkap.' },
+    title: 'Detektif Berita',
+    emoji: '🔎',
+    subject: 'Bahasa Melayu',
+    level: 'Tingkatan 1',
+    topic: '3.0 Membaca',
+    sp: ['3.1.2', '3.1.3', '3.2.1', '3.2.2'],
+    desc: 'Cari maklumat dalam berita, kenal fakta dan pendapat, buat inferens, kemudian nilai mesej tular: palsu, berat sebelah atau tidak lengkap?',
+    ready: true,
+  },
   { id: 'kampung-sejahtera', title: 'Kampung Sejahtera', emoji: '🏡', subject: 'Pembentukan Karakter', level: 'Semua', topic: 'Slot Pembentukan Karakter', sp: [], desc: 'Simulasi kelas: setiap pilihan memberi kesan kepada seluruh kampung.', ready: false },
 ];
 

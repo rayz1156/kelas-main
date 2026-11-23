@@ -38,9 +38,11 @@ Standards 3.1.4 to 3.1.6 of Alam dan Manusia (unsafe touch) are left out on purp
 | Neraca Persamaan | Matematik | 5.1.1 to 5.1.4 | TP1 to TP4 |
 | Irama Gema | Pendidikan Muzik | 1.1.1, 1.1.2, 3.1.1, 3.1.2 | TP1 to TP3 |
 | Detektif Tatabahasa | Bahasa Melayu | Aspek Tatabahasa (golongan kata, pembentukan kata, ayat) | TP1 to TP4 |
+| Detektif Berita | Bahasa Melayu | 3.1.2, 3.1.3, 3.2.1, 3.2.2 | TP1 to TP4 |
 
 - Misi Bantuan Banjir and Neraca Persamaan follow the topic Standard Prestasi; TP4 is a daily-life problem, using the contexts named in the Nota (flood-aid distribution, bus timetables, finance, sport, engineering).
 - Irama Gema draws notation as SVG and plays rhythms with the Web Audio API after a 4-beat count-in. TP3 includes clap-back items that the teacher marks.
+- Detektif Berita follows the Membaca Standard Prestasi: TP1 find information, TP2 explain and classify it, TP3 link it and infer, TP4 respond critically (judge whether a news item or viral message is reliable, fake, one-sided or incomplete). All articles, places and people are fictional.
 - The BM document has no SP codes or Standard Prestasi for Tatabahasa, so the game's levels are a teaching progression. Grammar areas appear in the report instead of SP codes.
 
 ## Architecture
