@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kelas Main</title>
+  <meta name="description" content="Permainan bilik darjah percuma untuk guru Malaysia, selari dengan Kurikulum Persekolahan 2027 (KP2027). Sedia untuk projektor dan boleh digunakan tanpa internet.">
+  <meta name="theme-color" content="#e2552d">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="./"><span class="logo-mark">🎲</span>Kelas Main</a>
+    <span class="spacer"></span>
+    <a class="icon-btn" href="laporan.html" style="text-decoration:none">📊 Laporan PBD</a>
+    <button class="icon-btn" id="theme" type="button" title="Tema terang atau gelap">🌓</button>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Permainan bilik darjah untuk KP2027</h1>
+      <p>Pilih permainan mengikut Standard Pembelajaran. Tayangkan di projektor, bahagikan kelas kepada pasukan, dan rekod Tahap Penguasaan (TP) untuk PBD secara automatik.</p>
+    </section>
+
+    <div class="filters" id="filters" role="group" aria-label="Tapis permainan"></div>
+    <div class="grid" id="ready"></div>
+
+    <h2 class="section-title">Akan datang</h2>
+    <div class="grid" id="soon"></div>
+
+    <p class="note">🔒 Semua senarai nama dan rekod PBD disimpan dalam pelayar peranti ini sahaja. Tiada data murid dihantar ke mana-mana pelayan. Selepas dibuka sekali, permainan boleh dimainkan tanpa internet.</p>
+  </main>
+
+  <footer class="wrap">
+    Kelas Main · prototaip untuk guru Malaysia · Selari dengan Dokumen Kurikulum KP2027 (BPK, 2026). Kod standard merujuk kepada Standard Pembelajaran dalam dokumen rasmi.
+  </footer>
+
+  <script type="module">
+    import { h, store, applyTheme, cycleTheme, registerSW } from './js/core.js';
+    import { GAMES } from './js/data.js';
+    applyTheme(); registerSW();
+    document.getElementById('theme').addEventListener('click', cycleTheme);
+
+    const levels = ['Semua', ...new Set(GAMES.map((g) => g.level).filter((l) => l !== 'Semua'))];
+    const subjects = ['Semua subjek', ...new Set(GAMES.map((g) => g.subject))];
+    let level = store.get('home:level', 'Semua');
+    let subject = store.get('home:subject', 'Semua subjek');
+
+    const card = (g) => {
+      const body = [
+        h('div', { class: 'emoji' }, g.emoji),
+        h('h3', {}, g.title),
+        h('div', { class: 'tags' }, h('span', { class: 'tag' }, g.level), h('span', { class: 'tag' }, g.subject)),
+        h('p', {}, g.desc),
+        g.sp.length ? h('div', { class: 'tags' }, g.sp.map((s) => h('span', { class: 'tag sp' }, 'SP ' + s))) : null,
+      ];
+      return g.ready ? h('a', { class: 'card', href: `game.html?g=${g.id}` }, body) : h('div', { class: 'card soon', 'aria-disabled': 'true' }, body);
+    };
+
+    function render() {
+      const fit = (g) => (level === 'Semua' || g.level === level || g.level === 'Semua') && (subject === 'Semua subjek' || g.subject === subject);
+      const chip = (label, current, set) => {
+        const b = h('button', { class: 'chip', type: 'button', 'aria-pressed': String(label === current) }, label);
+        b.addEventListener('click', () => { set(label); render(); });
+        return b;
+      };
+      document.getElementById('filters').replaceChildren(
+        ...levels.map((l) => chip(l, level, (v) => { level = v; store.set('home:level', v); })),
+        h('span', { style: { width: '12px' } }),
+        ...subjects.map((s) => chip(s, subject, (v) => { subject = v; store.set('home:subject', v); })));
+      const ready = GAMES.filter((g) => g.ready && fit(g));
+      document.getElementById('ready').replaceChildren(...(ready.length ? ready.map(card) : [h('p', { class: 'empty' }, 'Tiada permainan untuk pilihan ini lagi.')]));
+      document.getElementById('soon').replaceChildren(...GAMES.filter((g) => !g.ready && fit(g)).map(card));
+    }
+    render();
+  </script>
+</body>
+</html>

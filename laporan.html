@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan PBD · Kelas Main</title>
+  <meta name="theme-color" content="#e2552d">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="./"><span class="logo-mark">🎲</span>Kelas Main</a>
+    <span class="spacer"></span>
+    <a class="icon-btn" href="./" style="text-decoration:none">← Permainan</a>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Laporan PBD</h1>
+      <p>Tahap Penguasaan (TP) daripada permainan, mengikut murid dan Standard Pembelajaran. Data disimpan dalam peranti ini sahaja. Muat turun CSV untuk dibuka dalam Excel atau Google Sheets.</p>
+    </section>
+    <div class="tabs" role="tablist">
+      <button class="chip" type="button" role="tab" data-tab="rekod">📊 Rekod PBD</button>
+      <button class="chip" type="button" role="tab" data-tab="kelas">👥 Kelas saya</button>
+    </div>
+    <div id="view"></div>
+  </main>
+
+  <footer class="wrap">TP yang direkodkan ialah cadangan daripada permainan yang telah disemak oleh guru. Guru membuat penentuan akhir TP murid.</footer>
+
+  <script type="module">
+    import { h, store, uid, applyTheme, registerSW, downloadFile } from './js/core.js';
+    import { TP } from './js/data.js';
+    applyTheme(); registerSW();
+
+    const view = document.getElementById('view');
+    const tabs = [...document.querySelectorAll('[data-tab]')];
+    const tpText = (n) => (n > 0 ? `TP${n} ${TP[n].label}` : 'Belum');
+    const csvCell = (v) => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    const toCSV = (rows) => rows.map((r) => r.map(csvCell).join(',')).join('\n');
+    const today = () => new Date().toISOString().slice(0, 10);
+
+    function show(tab) {
+      tabs.forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.tab === tab)));
+      history.replaceState(null, '', '#' + tab);
+      (tab === 'kelas' ? renderClasses : renderRecords)();
+    }
+    tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.tab)));
+
+    // ---------------- Records ----------------
+    function renderRecords() {
+      const records = store.get('records', []);
+      const classes = store.get('classes', []);
+      let classId = store.get('report:class', classes[0]?.id || '');
+      if (classId && !classes.find((c) => c.id === classId)) classId = '';
+
+      const sel = h('select', { 'aria-label': 'Pilih kelas' },
+        h('option', { value: '' }, 'Semua sesi (ikut pasukan)'),
+        classes.map((c) => h('option', { value: c.id, selected: c.id === classId }, c.name)));
+      sel.addEventListener('change', () => { store.set('report:class', sel.value); renderRecords(); });
+
+      const exportAll = () => downloadFile(`kelas-main-rekod-${today()}.csv`, toCSV([
+        ['Tarikh', 'Kelas', 'Subjek', 'Tahun/Tingkatan', 'Permainan', 'Tahap', 'SP', 'Pasukan', 'Murid', 'Betul', 'Soalan', 'TP', 'Adab'],
+        ...records.map((r) => [r.at.slice(0, 16).replace('T', ' '), classes.find((c) => c.id === r.classId)?.name || '', r.subject, r.year, r.title,
+          `TP${r.level} ${r.levelTitle}`, r.sp.join(' '), r.team, r.members.join('; '), r.right, r.asked, tpText(r.tp), r.adab.join('; ')]),
+      ]));
+
+      const clearAll = () => {
+        if (!records.length) return;
+        if (confirm(`Padam semua ${records.length} rekod dalam peranti ini? Tindakan ini tidak boleh dibatalkan. Muat turun CSV dahulu jika perlu.`)) {
+          store.set('records', []); renderRecords();
+        }
+      };
+
+      const toolbar = h('div', { class: 'row', style: { marginBottom: '14px' } }, sel,
+        h('button', { class: 'btn', type: 'button', onclick: exportAll, disabled: !records.length }, '⬇️ Muat turun CSV'),
+        h('button', { class: 'btn secondary', type: 'button', onclick: clearAll, disabled: !records.length }, '🗑️ Padam semua'));
+
+      if (!records.length) {
+        view.replaceChildren(toolbar, h('div', { class: 'panel empty' }, 'Belum ada rekod. Main satu permainan dan tekan "Simpan ke Laporan PBD" di skrin keputusan.'));
+        return;
+      }
+
+      const cls = classes.find((c) => c.id === classId);
+      if (cls) {
+        // Pupil x standard grid, latest TP wins.
+        const mine = records.filter((r) => r.classId === cls.id).sort((a, b) => a.at.localeCompare(b.at));
+        const cols = [...new Set(mine.flatMap((r) => r.sp.map((s) => `${r.subject} ${s}`)))].sort();
+        const grid = {};
+        for (const r of mine) for (const p of r.members) for (const s of r.sp) {
+          grid[p] = grid[p] || {};
+          grid[p][`${r.subject} ${s}`] = { tp: r.tp, adab: r.adab.length };
+        }
+        const exportGrid = () => downloadFile(`kelas-main-${cls.name.replace(/\W+/g, '-')}-${today()}.csv`,
+          toCSV([['Murid', ...cols], ...cls.pupils.map((p) => [p, ...cols.map((c) => (grid[p]?.[c] ? tpText(grid[p][c].tp) : ''))])]));
+        view.replaceChildren(toolbar,
+          h('div', { class: 'row', style: { marginBottom: '10px' } },
+            h('h2', { style: { margin: 0 } }, `${cls.name}: TP terkini mengikut SP`),
+            h('button', { class: 'btn secondary', type: 'button', onclick: exportGrid, disabled: !cols.length }, '⬇️ CSV kelas ini')),
+          cols.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'results' },
+            h('thead', {}, h('tr', {}, h('th', {}, 'Murid'), cols.map((c) => h('th', {}, c)))),
+            h('tbody', {}, cls.pupils.map((p) => h('tr', {}, h('td', {}, h('b', {}, p)),
+              cols.map((c) => h('td', {}, grid[p]?.[c] ? h('span', { class: 'tp-badge' }, tpText(grid[p][c].tp)) : '·')))))))
+            : h('div', { class: 'panel empty' }, 'Belum ada rekod untuk kelas ini. Pilih kelas ini semasa menetapkan permainan.'));
+        return;
+      }
+
+      view.replaceChildren(toolbar, h('div', { class: 'table-wrap' }, h('table', { class: 'results' },
+        h('thead', {}, h('tr', {}, ['Tarikh', 'Permainan', 'Tahap', 'Pasukan', 'Betul', 'TP', 'Adab'].map((x) => h('th', {}, x)))),
+        h('tbody', {}, records.slice().reverse().map((r) => h('tr', {},
+          h('td', {}, new Date(r.at).toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' })),
+          h('td', {}, r.title, h('div', { style: { fontSize: '13px', color: 'var(--ink-soft)' } }, `${r.subject} · SP ${r.sp.join(', ')}`)),
+          h('td', {}, `TP${r.level} ${r.levelTitle}`),
+          h('td', {}, r.team, r.members.length ? h('div', { style: { fontSize: '13px', color: 'var(--ink-soft)' } }, r.members.join(', ')) : null),
+          h('td', {}, `${r.right}/${r.asked}`),
+          h('td', {}, h('span', { class: 'tp-badge' }, tpText(r.tp))),
+          h('td', { style: { fontSize: '14px' } }, r.adab.join(', ') || '·')))))));
+    }
+
+    // ---------------- Classes ----------------
+    function renderClasses(editId) {
+      const classes = store.get('classes', []);
+      const editing = classes.find((c) => c.id === editId);
+      const name = h('input', { type: 'text', placeholder: 'Contoh: 1 Bestari', value: editing?.name || '', 'aria-label': 'Nama kelas', style: { width: '100%', maxWidth: '420px' } });
+      const list = h('textarea', { placeholder: 'Satu nama setiap baris\nAhmad\nMei Ling\nKavitha', 'aria-label': 'Nama murid' });
+      list.value = editing ? editing.pupils.join('\n') : '';
+      const msg = h('p', { style: { color: 'var(--ink-soft)', minHeight: '1.4em' } });
+
+      const save = () => {
+        const pupils = [...new Set(list.value.split('\n').map((s) => s.trim()).filter(Boolean))];
+        if (!name.value.trim() || !pupils.length) { msg.textContent = 'Isi nama kelas dan sekurang-kurangnya seorang murid.'; return; }
+        const next = editing
+          ? classes.map((c) => (c.id === editing.id ? { ...c, name: name.value.trim(), pupils } : c))
+          : [...classes, { id: uid(), name: name.value.trim(), pupils }];
+        if (store.set('classes', next)) renderClasses();
+        else msg.textContent = 'Storan pelayar disekat. Cuba pelayar lain atau keluar daripada mod peribadi.';
+      };
+
+      view.replaceChildren(
+        h('section', { class: 'panel' },
+          h('h2', {}, editing ? `Sunting ${editing.name}` : 'Tambah kelas'),
+          h('p', { style: { color: 'var(--ink-soft)', marginTop: 0 } }, 'Nama murid hanya disimpan dalam pelayar ini. Gunakan nama panggilan jika mahu.'),
+          h('div', { style: { display: 'grid', gap: '12px' } }, name, list),
+          msg,
+          h('div', { class: 'row' },
+            h('button', { class: 'btn green', type: 'button', onclick: save }, editing ? '💾 Simpan perubahan' : '➕ Tambah kelas'),
+            editing ? h('button', { class: 'btn secondary', type: 'button', onclick: () => renderClasses() }, 'Batal') : null)),
+        h('section', { class: 'panel' },
+          h('h2', {}, 'Kelas saya'),
+          classes.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'results' },
+            h('tbody', {}, classes.map((c) => h('tr', {},
+              h('td', {}, h('b', {}, c.name)),
+              h('td', {}, `${c.pupils.length} murid`),
+              h('td', {}, h('div', { class: 'row' },
+                h('button', { class: 'icon-btn', type: 'button', onclick: () => renderClasses(c.id) }, '✏️ Sunting'),
+                h('button', { class: 'icon-btn', type: 'button', onclick: () => {
+                  if (confirm(`Padam kelas ${c.name}? Rekod PBD yang sudah disimpan tidak dipadam.`)) { store.set('classes', classes.filter((x) => x.id !== c.id)); renderClasses(); }
+                } }, '🗑️ Padam'))))))))
+            : h('p', { class: 'empty' }, 'Belum ada kelas.')),
+      );
+    }
+
+    show(location.hash === '#kelas' ? 'kelas' : 'rekod');
+  </script>
+</body>
+</html>

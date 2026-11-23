@@ -1,0 +1,14 @@
+{
+  "name": "Kelas Main: Permainan Bilik Darjah KP2027",
+  "short_name": "Kelas Main",
+  "description": "Permainan bilik darjah untuk guru Malaysia, selari dengan KP2027.",
+  "lang": "ms",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fdf8ef",
+  "theme_color": "#e2552d",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
