@@ -4,7 +4,7 @@ Free classroom games for Malaysian teachers, aligned to the Kurikulum Persekolah
 
 ## What it does
 - Whole-class play from one projector, with 1 to 4 teams.
-- Every game level maps to a mastery level (TP1 TAHU, TP2 FAHAM, TP3 BUAT) and to Standard Pembelajaran codes.
+- Every game level maps to a mastery level (TP1 TAHU, TP2 FAHAM, TP3 BUAT, and TP4 AMAL from Tahap II and secondary) and to Standard Pembelajaran codes.
 - The results screen suggests a TP per team, the teacher confirms it and ticks observed adab, and the record is saved for the PBD report.
 - Class lists and records stay in the browser (localStorage). No pupil data leaves the device.
 - Works offline after the first visit (service worker).
@@ -20,7 +20,8 @@ TP suggestions use only real answers, never surprise-card points.
 ## Bina Set (teacher-made sets)
 `bina.html` lets a teacher write questions for any subject, year and SP. Items with wrong options become multiple choice. Items without them are answered aloud: the teacher reveals the answer and marks it right or wrong. Sets are stored locally and can be shared as a link (`game.html?g=set#s=...`, the set encoded in the URL fragment, never sent to a server) or as a JSON file.
 
-## Games in this version (Tahun 1)
+## Games in this version
+### Tahun 1
 | Game | Subject | Standards |
 |---|---|---|
 | Kedai Runcit RM10 | Matematik | 3.1.1, 3.2.1, 3.2.2, 3.2.3 |
@@ -29,6 +30,18 @@ TP suggestions use only real answers, never surprise-card points.
 | Selamat atau Tidak? | Alam dan Manusia | 3.1.1, 3.1.2, 3.1.3, 3.1.7, 3.1.10 |
 
 Standards 3.1.4 to 3.1.6 of Alam dan Manusia (unsafe touch) are left out on purpose. They need a teacher-led lesson.
+
+### Tingkatan 1
+| Game | Subject | Standards | Levels |
+|---|---|---|---|
+| Misi Bantuan Banjir | Matematik | 2.1.1 to 2.1.4, 2.2.1 to 2.2.3 | TP1 to TP4 |
+| Neraca Persamaan | Matematik | 5.1.1 to 5.1.4 | TP1 to TP4 |
+| Irama Gema | Pendidikan Muzik | 1.1.1, 1.1.2, 3.1.1, 3.1.2 | TP1 to TP3 |
+| Detektif Tatabahasa | Bahasa Melayu | Aspek Tatabahasa (golongan kata, pembentukan kata, ayat) | TP1 to TP4 |
+
+- Misi Bantuan Banjir and Neraca Persamaan follow the topic Standard Prestasi; TP4 is a daily-life problem, using the contexts named in the Nota (flood-aid distribution, bus timetables, finance, sport, engineering).
+- Irama Gema draws notation as SVG and plays rhythms with the Web Audio API after a 4-beat count-in. TP3 includes clap-back items that the teacher marks.
+- The BM document has no SP codes or Standard Prestasi for Tatabahasa, so the game's levels are a teaching progression. Grammar areas appear in the report instead of SP codes.
 
 ## Architecture
 Plain HTML, CSS and JavaScript modules. There is no build step and no server code, so the whole site can be served from any static host or CDN.

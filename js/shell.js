@@ -1,7 +1,7 @@
 // Game shell: setup -> play (Klasik, Papan Kejutan or Lumba Masa) -> results -> save to PBD report.
 // A game module only produces questions; the shell wraps them in a play mode.
 import { $, h, shuffle, store, sfx, speak, confetti, toggleFullscreen, isMuted, setMuted, uid, applyTheme, registerSW } from './core.js';
-import { TP, ADAB, MODES, gameById, maxTPFor } from './data.js';
+import { TP, ADAB, MODES, gameById, maxTPFor, spLabel } from './data.js';
 import { loadSet, buildSetGame } from './games/set.js';
 
 const TEAM_PRESETS = [
@@ -155,7 +155,7 @@ class Shell {
           pressGroup(levels.map(([n, lv]) => ({
             value: Number(n),
             label: `TP${n} ${TP[n].label}: ${lv.title}`,
-            small: lv.sp.length ? `SP ${lv.sp.join(', ')}` : '',
+            small: lv.sp.map(spLabel).join(', '),
           })), this.cfg.level, (v) => (this.cfg.level = v))),
         h('section', { class: 'panel' },
           h('h2', {}, '3. Bilangan pasukan'),
@@ -221,7 +221,7 @@ class Shell {
         h('div', { class: 'row' },
           h('span', { class: 'turn-banner', style: { background: team.color } }, `${team.icon} Giliran Pasukan ${team.name}`),
           ...banner,
-          h('span', { class: 'tag sp' }, `TP${this.cfg.level} ${TP[this.cfg.level].label}${(question.sp || this.level.sp.join(', ')) ? ' · SP ' + (question.sp || this.level.sp.join(', ')) : ''}`),
+          h('span', { class: 'tag sp' }, `TP${this.cfg.level} ${TP[this.cfg.level].label}${(question.sp || this.level.sp.length) ? ' · ' + (question.sp ? spLabel(question.sp) : this.level.sp.map(spLabel).join(', ')) : ''}`),
           sayBtn),
         h('div', { class: 'prompt' }, question.prompt, question.sub ? h('small', {}, question.sub) : null),
         area),
@@ -484,7 +484,7 @@ class Shell {
       this.head(),
       h('main', { class: 'stage' },
         h('p', { class: 'winner' }, title),
-        h('p', { style: { color: 'var(--ink-soft)', marginTop: 0 } }, `${this.meta.title} · ${MODES[this.cfg.mode].label} · TP${this.cfg.level} ${TP[this.cfg.level].label}: ${this.level.title}${this.level.sp.length ? ' · SP ' + this.level.sp.join(', ') : ''}`),
+        h('p', { style: { color: 'var(--ink-soft)', marginTop: 0 } }, `${this.meta.title} · ${MODES[this.cfg.mode].label} · TP${this.cfg.level} ${TP[this.cfg.level].label}: ${this.level.title}${this.level.sp.length ? ' · ' + this.level.sp.map(spLabel).join(', ') : ''}`),
         h('section', { class: 'panel', style: { overflowX: 'auto' } },
           h('table', { class: 'results' },
             h('thead', {}, h('tr', {}, ['Pasukan', 'Mata', 'Betul', 'TP (cadangan)', 'Adab'].map((x) => h('th', {}, x)))),

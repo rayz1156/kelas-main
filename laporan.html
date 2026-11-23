@@ -36,6 +36,8 @@
   <script type="module">
     import { h, store, uid, applyTheme, registerSW, downloadFile } from './js/core.js';
     import { TP } from './js/data.js';
+    // Defined here, not imported: a visitor's service worker may still serve last version's data.js on the first load after an update.
+    const spLabel = (s) => (/^\d/.test(s) ? 'SP ' + s : s);
     applyTheme(); registerSW();
 
     const view = document.getElementById('view');
@@ -114,7 +116,7 @@
         h('thead', {}, h('tr', {}, ['Tarikh', 'Permainan', 'Tahap', 'Pasukan', 'Betul', 'TP', 'Adab'].map((x) => h('th', {}, x)))),
         h('tbody', {}, records.slice().reverse().map((r) => h('tr', {},
           h('td', {}, new Date(r.at).toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' })),
-          h('td', {}, r.title, h('div', { style: { fontSize: '13px', color: 'var(--ink-soft)' } }, `${r.subject} · SP ${r.sp.join(', ')}`)),
+          h('td', {}, r.title, h('div', { style: { fontSize: '13px', color: 'var(--ink-soft)' } }, `${r.subject}${r.sp.length ? ' · ' + r.sp.map(spLabel).join(', ') : ''}`)),
           h('td', {}, `TP${r.level} ${r.levelTitle}`),
           h('td', {}, r.team, r.members.length ? h('div', { style: { fontSize: '13px', color: 'var(--ink-soft)' } }, r.members.join(', ')) : null),
           h('td', {}, `${r.right}/${r.asked}`),
