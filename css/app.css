@@ -340,3 +340,48 @@ details.notes p { margin: 6px 0 0; color: var(--ink-soft); }
   .board { gap: 8px; } .tile { min-height: 70px; }
   .q-row { grid-template-columns: 56px 1fr; } .q-row > .icon-btn { grid-column: 2; justify-self: end; } .q-emoji { width: 56px; }
 }
+
+/* ---------- Home: search, filters and catalogue (ABCya grade/subject rows, Poki genre chips, Baamboozle search) ---------- */
+.search { display: flex; align-items: center; gap: 10px; margin-top: 20px; max-width: 760px; background: var(--surface); border: 3px solid var(--line); border-radius: 999px; padding: 6px 10px 6px 18px; box-shadow: var(--shadow); }
+.search:focus-within { border-color: var(--brand); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 20px; font-weight: 700; color: var(--ink); padding: 10px 0; outline: none; }
+.search kbd { font: inherit; font-size: 14px; font-weight: 800; color: var(--ink-soft); border: 2px solid var(--line); border-radius: 8px; padding: 0 8px; }
+.browse { background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin: 18px 0 8px; display: grid; gap: 10px; }
+.f-row { display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: center; }
+.f-row[hidden] { display: none; }
+.f-label { font-weight: 900; color: var(--ink-soft); font-size: 15px; text-transform: uppercase; letter-spacing: .04em; }
+.f-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.f-chips .chip { min-height: 40px; padding: 6px 14px; font-size: 16px; }
+.chip .n { display: inline-block; margin-left: 6px; min-width: 22px; padding: 0 6px; border-radius: 999px; background: var(--surface-2); color: var(--ink-soft); font-size: 13px; }
+.chip[aria-pressed="true"] .n { background: rgba(255,255,255,.2); color: inherit; }
+.chip[data-empty] { opacity: .45; }
+.chip.sm { min-width: 40px; padding: 6px 10px; justify-content: center; }
+.f-group { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px 3px 3px; border: 2px dashed var(--line); border-radius: 999px; }
+.f-group-name { border: 0; background: var(--surface-2); border-radius: 999px; padding: 6px 12px; font-weight: 900; font-size: 15px; min-height: 36px; }
+.f-group-name[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.f-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; border-top: 2px solid var(--line); padding-top: 10px; font-weight: 800; }
+.f-bar .spacer { flex: 1; }
+.f-active { display: inline-flex; gap: 8px; }
+.link-btn { border: 0; background: none; color: var(--brand); font-weight: 900; padding: 6px 4px; text-decoration: underline; }
+.f-sort { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-soft); }
+.f-sort select { font: inherit; font-weight: 800; color: var(--ink); background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 6px 10px; min-height: 40px; }
+.row-scroll { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(260px, 320px); gap: 18px; overflow-x: auto; padding: 4px 2px 18px; scroll-snap-type: x mandatory; }
+.row-scroll > * { scroll-snap-align: start; }
+.game-card { padding: 0 0 18px; overflow: hidden; }
+.game-card > :not(.thumb) { margin-left: 18px; margin-right: 18px; }
+.thumb { position: relative; height: 120px; display: grid; place-items: center; background: linear-gradient(135deg, hsl(var(--h) 85% 62%), hsl(calc(var(--h) + 35) 80% 48%)); }
+.thumb .emoji { font-size: 64px; filter: drop-shadow(0 4px 0 rgba(0,0,0,.18)); }
+a.game-card:hover .thumb .emoji { transform: scale(1.08) rotate(-4deg); transition: transform .15s; }
+.badge-new { position: absolute; top: 10px; left: 10px; background: var(--gold); color: #1f2430; font-weight: 900; font-size: 12px; letter-spacing: .06em; border-radius: 999px; padding: 3px 10px; }
+.badge-genre { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,.45); color: #fff; font-weight: 800; font-size: 13px; border-radius: 999px; padding: 3px 10px; }
+.tag.year { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.empty { margin: 0 0 18px; }
+.empty p { margin: 6px 0 0; color: var(--ink-soft); }
+@media (max-width: 640px) {
+  .search input { font-size: 17px; }
+  .search kbd { display: none; }
+  .f-row { grid-template-columns: 1fr; gap: 6px; }
+  .f-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .f-chips > * { flex: none; }
+  .row-scroll { grid-auto-columns: 82%; }
+}

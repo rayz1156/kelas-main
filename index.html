@@ -24,26 +24,55 @@
   <main class="wrap">
     <section class="hero">
       <h1>Permainan bilik darjah untuk KP2027</h1>
-      <p>Pilih permainan mengikut Standard Pembelajaran. Tayangkan di projektor, bahagikan kelas kepada pasukan, dan rekod Tahap Penguasaan (TP) untuk PBD secara automatik.</p>
+      <p>Pilih permainan mengikut tahun, subjek atau Standard Pembelajaran. Tayangkan di projektor, bahagikan kelas kepada pasukan, dan rekod Tahap Penguasaan (TP) untuk PBD secara automatik.</p>
+      <label class="search" for="q">
+        <span aria-hidden="true">🔍</span>
+        <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="Cari permainan, topik atau kod SP, cth: wang, irama, 3.1.2" aria-label="Cari permainan">
+        <kbd title="Tekan / untuk mencari">/</kbd>
+      </label>
     </section>
 
     <details class="panel quick-guide">
       <summary>🎓 Baru di sini? Cara guna JomMain dalam 4 langkah</summary>
       <ol class="guide-steps">
-        <li><span>🎮</span><b>Pilih permainan</b>Tapis mengikut tahun atau subjek. Setiap permainan dipadankan dengan Standard Pembelajaran KP2027.</li>
+        <li><span>🎮</span><b>Pilih permainan</b>Cari atau tapis mengikut tahun, subjek dan jenis permainan. Setiap permainan dipadankan dengan Standard Pembelajaran KP2027.</li>
         <li><span>🎓</span><b>Tonton tutorial</b>Tutorial terbuka pada kali pertama. Ada langkah untuk guru, langkah untuk murid dan satu soalan latihan. Buka semula dengan butang ❓.</li>
         <li><span>📽️</span><b>Main bersama kelas</b>Tayangkan di projektor. Bahagikan kelas kepada pasukan. Murid menjawab secara lisan, guru menekan jawapan.</li>
         <li><span>📊</span><b>Simpan rekod PBD</b>Selepas bermain, tandakan adab dan simpan TP pasukan ke Laporan PBD.</li>
       </ol>
     </details>
 
-    <div class="filters" id="filters" role="group" aria-label="Tapis permainan"></div>
+    <section class="browse" id="browse" aria-label="Tapis permainan">
+      <div class="f-row"><span class="f-label">Tahun</span><div class="f-chips" id="fYear"></div></div>
+      <div class="f-row"><span class="f-label">Subjek</span><div class="f-chips" id="fSubject"></div></div>
+      <div class="f-row"><span class="f-label">Jenis</span><div class="f-chips" id="fGenre"></div></div>
+      <div class="f-bar">
+        <span id="count" aria-live="polite"></span>
+        <span id="active" class="f-active"></span>
+        <span class="spacer"></span>
+        <label class="f-sort">Susun
+          <select id="sort">
+            <option value="sp">Disyorkan</option>
+            <option value="new">Terbaru</option>
+            <option value="az">A hingga Z</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section id="newRow" hidden>
+      <h2 class="section-title">✨ Baharu ditambah</h2>
+      <div class="row-scroll" id="newGames"></div>
+    </section>
+
+    <h2 class="section-title" id="allTitle">📚 Semua permainan</h2>
+    <div class="empty panel" id="empty" hidden></div>
     <div class="grid" id="ready"></div>
 
     <h2 class="section-title" id="mineTitle" hidden>📝 Set saya</h2>
     <div class="grid" id="mine"></div>
 
-    <h2 class="section-title" id="soonTitle">Akan datang</h2>
+    <h2 class="section-title" id="soonTitle" hidden>Akan datang</h2>
     <div class="grid" id="soon"></div>
 
     <p class="note">🔒 Semua senarai nama dan rekod PBD disimpan dalam pelayar peranti ini sahaja. Tiada data murid dihantar ke mana-mana pelayan. Selepas dibuka sekali, permainan boleh dimainkan tanpa internet.</p>
@@ -58,54 +87,160 @@
     import { GAMES } from './js/data.js';
     // Defined here, not imported: a visitor's service worker may still serve last version's data.js on the first load after an update.
     const spLabel = (s) => (/^\d/.test(s) ? 'SP ' + s : s);
+    const GENRES = ['Kuiz pasukan', 'Misi cerita', 'Simulasi', 'Bina dan padan', 'Bacaan dan analisis', 'Muzik dan bunyi', 'Aksi 2D'];
+    const RENDAH = ['Tahun 1', 'Tahun 2', 'Tahun 3', 'Tahun 4', 'Tahun 5', 'Tahun 6'];
+    const MENENGAH = ['Tingkatan 1', 'Tingkatan 2', 'Tingkatan 3', 'Tingkatan 4', 'Tingkatan 5'];
+    const ICON = { 'Bahasa Melayu': '📖', 'Bahasa Inggeris': '🔤', 'Matematik': '➗', 'Alam dan Manusia': '🌏', 'Sains': '🔬', 'Pendidikan Islam': '🕌', 'Pendidikan Moral': '🤲', 'Sejarah': '🏛️', 'Geografi': '🗺️', 'Pendidikan Jasmani': '⚽', 'Pendidikan Jasmani dan Pendidikan Kesihatan': '⚽', 'Pendidikan Seni Visual': '🎨', 'Pendidikan Muzik': '🎵', 'Bahasa Cina': '🀄', 'Bahasa Tamil': '🪷', 'Pembentukan Karakter': '💛', 'Lain-lain': '🧩' };
+    const HUE = { 'Bahasa Melayu': 12, 'Matematik': 210, 'Alam dan Manusia': 140, 'Pendidikan Muzik': 285, 'Pembentukan Karakter': 42, 'Sains': 170, 'Bahasa Inggeris': 330, 'Sejarah': 25 };
+    const GENRE_ICON = { 'Kuiz pasukan': '🙋', 'Misi cerita': '🗺️', 'Simulasi': '🧪', 'Bina dan padan': '🧱', 'Bacaan dan analisis': '🔎', 'Muzik dan bunyi': '🎧', 'Aksi 2D': '🕹️' };
+    // Short words teachers type, mapped to the words used in the catalogue.
+    const ALIAS = { bm: 'bahasa melayu', bi: 'bahasa inggeris', math: 'matematik', maths: 'matematik', mt: 'matematik', sn: 'sains', muzik: 'muzik', ting: 'tingkatan', tg: 'tingkatan', thn: 'tahun', karakter: 'pembentukan karakter', moral: 'karakter', duit: 'wang', bahagi: 'faktor', aksi: 'aksi 2d', '2d': 'aksi 2d' };
+    const NEW_COUNT = 3;
+
     applyTheme(); registerSW();
     document.getElementById('theme').addEventListener('click', cycleTheme);
 
-    const levels = ['Semua', ...new Set(GAMES.map((g) => g.level).filter((l) => l !== 'Semua'))];
-    const subjects = ['Semua subjek', ...new Set(GAMES.map((g) => g.subject))];
-    let level = store.get('home:level', 'Semua');
-    let subject = store.get('home:subject', 'Semua subjek');
+    const ready = GAMES.filter((g) => g.ready);
+    const order = new Map(GAMES.map((g, i) => [g.id, i]));
+    const newIds = new Set(ready.slice(-NEW_COUNT).map((g) => g.id));
+    const fold = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const hay = (g) => fold([g.title, g.desc, g.topic, g.subject, g.level, g.genre, ...(g.sp || []), ...(g.sp || []).map(spLabel)].join(' '));
+    const sets = () => store.get('sets', []);
 
+    // State: URL first (so a filtered link can be shared), then the teacher's last choice.
+    const url = new URLSearchParams(location.search);
+    const fromUrl = ['q', 'tahun', 'subjek', 'jenis'].some((k) => url.has(k));
+    const st = {
+      q: url.get('q') || '',
+      year: url.get('tahun') || (fromUrl ? '' : store.get('home:year', '')),
+      subject: url.get('subjek') || (fromUrl ? '' : store.get('home:subj', '')),
+      genre: url.get('jenis') || '',
+      sort: url.get('susun') || 'sp',
+    };
+    const qInput = document.getElementById('q');
+    const sortSel = document.getElementById('sort');
+    qInput.value = st.q; sortSel.value = st.sort;
+
+    const yearOk = (lvl, y) => !y || lvl === y || lvl === 'Semua' || (y === 'Rendah' && RENDAH.includes(lvl)) || (y === 'Menengah' && MENENGAH.includes(lvl));
+    function matches(g, skip) {
+      if (skip !== 'year' && !yearOk(g.level, st.year)) return false;
+      if (skip !== 'subject' && st.subject && g.subject !== st.subject) return false;
+      if (skip !== 'genre' && st.genre && g.genre !== st.genre) return false;
+      const words = fold(st.q).split(/\s+/).filter(Boolean);
+      if (!words.length) return true;
+      const text = hay(g);
+      return words.every((w) => text.includes(w) || (ALIAS[w] && text.includes(ALIAS[w])) || (/^\d$/.test(w) && text.includes(' ' + w)));
+    }
+    const setFit = (s, skip) => matches({ title: s.title, desc: '', topic: '', subject: s.subject, level: s.year, genre: 'Kuiz pasukan', sp: s.sp || [] }, skip);
+
+    function save() {
+      store.set('home:year', st.year); store.set('home:subj', st.subject);
+      const p = new URLSearchParams();
+      if (st.q) p.set('q', st.q);
+      if (st.year) p.set('tahun', st.year);
+      if (st.subject) p.set('subjek', st.subject);
+      if (st.genre) p.set('jenis', st.genre);
+      if (st.sort !== 'sp') p.set('susun', st.sort);
+      history.replaceState(null, '', p.toString() ? '?' + p : location.pathname);
+    }
+
+    const chip = (label, value, key, count, extra = {}) => {
+      const on = st[key] === value;
+      return h('button', { class: 'chip' + (extra.small ? ' sm' : ''), type: 'button', 'aria-pressed': String(on), 'data-empty': count === 0 && !on ? '' : null,
+        title: count == null ? null : (extra.title || '') + `${count} permainan`,
+        onclick: () => { st[key] = on ? '' : value; save(); render(); } },
+        extra.icon ? h('span', { 'aria-hidden': 'true' }, extra.icon + ' ') : null, label,
+        count && !extra.small ? h('span', { class: 'n' }, count) : null);
+    };
+    const countFor = (key, value) => {
+      const saved = st[key]; st[key] = value;
+      const n = ready.filter((g) => matches(g)).length + sets().filter((s) => setFit(s)).length;
+      st[key] = saved; return n;
+    };
+
+    function renderFilters() {
+      const yr = (list, short) => list.map((y) => chip(y.replace(short, ''), y, 'year', countFor('year', y), { small: true, title: y + ': ' }));
+      document.getElementById('fYear').replaceChildren(
+        chip('Semua', '', 'year'),
+        h('span', { class: 'f-group' }, h('button', { class: 'f-group-name', type: 'button', 'aria-pressed': String(st.year === 'Rendah'), onclick: () => { st.year = st.year === 'Rendah' ? '' : 'Rendah'; save(); render(); } }, 'Rendah'), ...yr(RENDAH, 'Tahun ')),
+        h('span', { class: 'f-group' }, h('button', { class: 'f-group-name', type: 'button', 'aria-pressed': String(st.year === 'Menengah'), onclick: () => { st.year = st.year === 'Menengah' ? '' : 'Menengah'; save(); render(); } }, 'Menengah'), ...yr(MENENGAH, 'Tingkatan ')));
+      const subjects = [...new Set([...ready.map((g) => g.subject), ...sets().map((s) => s.subject)])];
+      document.getElementById('fSubject').replaceChildren(chip('Semua', '', 'subject'),
+        ...subjects.map((s) => chip(s, s, 'subject', countFor('subject', s), { icon: ICON[s] || '🧩' })));
+      const genres = GENRES.filter((x) => ready.some((g) => g.genre === x));
+      document.getElementById('fGenre').replaceChildren(chip('Semua', '', 'genre'),
+        ...genres.map((x) => chip(x, x, 'genre', countFor('genre', x), { icon: GENRE_ICON[x] })));
+      document.getElementById('fGenre').parentElement.hidden = !genres.length;
+    }
+
+    const yearText = (lvl) => (lvl === 'Semua' ? 'Semua tahun' : lvl);
     const card = (g) => {
+      const hue = HUE[g.subject] ?? 200;
       const body = [
-        h('div', { class: 'emoji' }, g.emoji),
+        h('div', { class: 'thumb', style: { '--h': hue } },
+          h('span', { class: 'emoji' }, g.emoji),
+          newIds.has(g.id) ? h('span', { class: 'badge-new' }, 'BAHARU') : null,
+          g.genre ? h('span', { class: 'badge-genre' }, (GENRE_ICON[g.genre] || '') + ' ' + g.genre) : null),
         h('h3', {}, g.title),
-        h('div', { class: 'tags' }, h('span', { class: 'tag' }, g.level), h('span', { class: 'tag' }, g.subject)),
+        h('div', { class: 'tags' }, h('span', { class: 'tag year' }, yearText(g.level)), h('span', { class: 'tag' }, (ICON[g.subject] || '') + ' ' + g.subject)),
         h('p', {}, g.desc),
         g.sp.length ? h('div', { class: 'tags' }, g.sp.map((s) => h('span', { class: 'tag sp' }, spLabel(s)))) : null,
-        g.ready ? h('div', { class: 'tags' }, h('span', { class: 'tag' }, '🎯 Klasik · 🎁 Papan Kejutan · ⏱️ Lumba Masa')) : null,
       ];
-      return g.ready ? h('a', { class: 'card', href: `game.html?g=${g.id}` }, body) : h('div', { class: 'card soon', 'aria-disabled': 'true' }, body);
+      return g.ready ? h('a', { class: 'card game-card', href: `game.html?g=${g.id}` }, body) : h('div', { class: 'card soon', 'aria-disabled': 'true' }, body);
+    };
+    const makeCard = () => h('a', { class: 'card make', href: 'bina.html' },
+      h('div', { class: 'emoji' }, '🛠️'), h('h3', {}, 'Bina Set Soalan'),
+      h('p', {}, 'Tulis soalan sendiri untuk mana-mana subjek dan SP. Main dalam tiga mod dan kongsi dengan rakan guru melalui pautan.'),
+      h('div', { class: 'tags' }, h('span', { class: 'tag' }, 'Semua subjek'), h('span', { class: 'tag' }, 'Semua tahun')));
+
+    const firstSp = (g) => (g.sp || []).find((x) => /^\d/.test(x)) || '9';
+    const LEVEL_RANK = [...RENDAH, ...MENENGAH];
+    const sorters = {
+      sp: (a, b) => (LEVEL_RANK.indexOf(a.level) + 1 || 99) - (LEVEL_RANK.indexOf(b.level) + 1 || 99) || a.subject.localeCompare(b.subject, 'ms') || firstSp(a).localeCompare(firstSp(b), 'ms', { numeric: true }),
+      new: (a, b) => order.get(b.id) - order.get(a.id),
+      az: (a, b) => a.title.localeCompare(b.title, 'ms'),
     };
 
     function render() {
-      const fit = (g) => (level === 'Semua' || g.level === level || g.level === 'Semua') && (subject === 'Semua subjek' || g.subject === subject);
-      const chip = (label, current, set) => {
-        const b = h('button', { class: 'chip', type: 'button', 'aria-pressed': String(label === current) }, label);
-        b.addEventListener('click', () => { set(label); render(); });
-        return b;
-      };
-      document.getElementById('filters').replaceChildren(
-        ...levels.map((l) => chip(l, level, (v) => { level = v; store.set('home:level', v); })),
-        h('span', { style: { width: '12px' } }),
-        ...subjects.map((s) => chip(s, subject, (v) => { subject = v; store.set('home:subject', v); })));
-      const ready = GAMES.filter((g) => g.ready && fit(g));
-      const make = h('a', { class: 'card make', href: 'bina.html' },
-        h('div', { class: 'emoji' }, '🛠️'), h('h3', {}, 'Bina Set Soalan'),
-        h('p', {}, 'Tulis soalan sendiri untuk mana-mana subjek dan SP. Main dalam tiga mod dan kongsi dengan rakan guru melalui pautan.'),
-        h('div', { class: 'tags' }, h('span', { class: 'tag' }, 'Semua subjek'), h('span', { class: 'tag' }, 'Semua tahun')));
-      document.getElementById('ready').replaceChildren(...ready.map(card), make);
-      const sets = store.get('sets', []).filter((s) => (level === 'Semua' || s.year === level) && (subject === 'Semua subjek' || s.subject === subject));
-      document.getElementById('mineTitle').hidden = !sets.length;
-      document.getElementById('mine').replaceChildren(...sets.map((s) => h('a', { class: 'card', href: `game.html?g=set&id=${encodeURIComponent(s.id)}` },
+      renderFilters();
+      const filtering = !!(st.q || st.year || st.subject || st.genre);
+      const list = ready.filter((g) => matches(g)).sort(sorters[st.sort] || sorters.sp);
+      const mine = sets().filter((s) => setFit(s));
+      document.getElementById('count').textContent = `${list.length} permainan` + (mine.length ? ` · ${mine.length} set saya` : '');
+      const act = [st.q && `“${st.q}”`, st.year, st.subject, st.genre].filter(Boolean);
+      document.getElementById('active').replaceChildren(...(act.length ? [
+        h('button', { class: 'link-btn', type: 'button', onclick: () => { Object.assign(st, { q: '', year: '', subject: '', genre: '' }); qInput.value = ''; save(); render(); } }, '↺ Kosongkan tapisan')] : []));
+
+      const newRow = document.getElementById('newRow');
+      newRow.hidden = filtering;
+      if (!filtering) document.getElementById('newGames').replaceChildren(...ready.filter((g) => newIds.has(g.id)).reverse().map(card));
+      document.getElementById('allTitle').textContent = filtering ? '🎯 Hasil carian' : '📚 Semua permainan';
+
+      document.getElementById('ready').replaceChildren(...list.map(card), makeCard());
+      const empty = document.getElementById('empty');
+      const specific = !st.year || ready.some((g) => g.level !== 'Semua' && yearOk(g.level, st.year));
+      empty.hidden = list.length > 0 && specific;
+      if (!empty.hidden) empty.replaceChildren(
+        h('b', {}, list.length ? `🚧 Belum ada permainan khusus untuk ${st.year}.` : '🙈 Tiada permainan sepadan lagi.'),
+        h('p', {}, list.length ? 'Permainan di atas sesuai untuk semua tahun. Permainan baharu sedang dibina. Sementara itu, anda boleh bina set soalan sendiri dengan kad 🛠️.' : 'Cuba perkataan lain, buang satu tapisan, atau bina set soalan sendiri dengan kad 🛠️.'));
+      document.getElementById('mineTitle').hidden = !mine.length;
+      document.getElementById('mine').replaceChildren(...mine.map((s) => h('a', { class: 'card', href: `game.html?g=set&id=${encodeURIComponent(s.id)}` },
         h('div', { class: 'emoji' }, s.items[0]?.e || '📝'), h('h3', {}, s.title),
-        h('div', { class: 'tags' }, h('span', { class: 'tag' }, s.year), h('span', { class: 'tag' }, s.subject)),
+        h('div', { class: 'tags' }, h('span', { class: 'tag year' }, s.year), h('span', { class: 'tag' }, s.subject)),
         h('p', {}, `${s.items.length} soalan · TP${s.tp}`),
         s.sp.length ? h('div', { class: 'tags' }, s.sp.map((c) => h('span', { class: 'tag sp' }, spLabel(c)))) : null)));
-      const soon = GAMES.filter((g) => !g.ready && fit(g));
+      const soon = GAMES.filter((g) => !g.ready && matches(g));
       document.getElementById('soon').replaceChildren(...soon.map(card));
       document.getElementById('soonTitle').hidden = !soon.length;
     }
+
+    let timer;
+    qInput.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { st.q = qInput.value.trim(); save(); render(); }, 120); });
+    qInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') { qInput.value = ''; st.q = ''; save(); render(); } });
+    sortSel.addEventListener('change', () => { st.sort = sortSel.value; save(); render(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== qInput && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)) { e.preventDefault(); qInput.focus(); }
+    });
     render();
   </script>
 </body>

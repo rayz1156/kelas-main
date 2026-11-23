@@ -67,7 +67,7 @@ Plain HTML, CSS and JavaScript modules. There is no build step and no server cod
 ### Adding a game
 1. Create `js/games/<id>.js` exporting `{ levels: { 1: { title, sp, make }, 2: ..., 3: ... } }`.
 2. `make()` returns `{ prompt, sub?, say?, sp?, explain?, render(area, done) }`. Call `done(isCorrect, correctAnswerText)` once.
-3. Add an entry to `GAMES` in `js/data.js` with `ready: true`. Give it `howto`: three pupil steps `{ e, t, d }` shown in the game's tutorial. The teacher steps and a practice question from the lowest level are added by the shell.
+3. Add an entry to `GAMES` in `js/data.js` with `ready: true`. Give it `howto`: three pupil steps `{ e, t, d }` shown in the game's tutorial. The teacher steps and a practice question from the lowest level are added by the shell. Set `genre` to one of `GENRES` in `js/data.js` (also listed in `index.html`); it drives the "Jenis" filter on the home page. The last three ready games in `GAMES` get the BAHARU badge.
 4. Add the file to `CORE` in `sw.js` and bump `VERSION`.
 
 ## Run locally
