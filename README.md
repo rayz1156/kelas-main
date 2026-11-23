@@ -31,6 +31,13 @@ TP suggestions use only real answers, never surprise-card points.
 
 Standards 3.1.4 to 3.1.6 of Alam dan Manusia (unsafe touch) are left out on purpose. They need a teacher-led lesson.
 
+### Semua tahap
+| Game | Subject | Basis | Levels |
+|---|---|---|---|
+| Kampung Sejahtera | Pembentukan Karakter | Four core character elements (penyayang, berdaya tahan, berupaya memimpin, warganegara aktif) and socio-emotional learning | TP1 to TP4 |
+
+- The whole class shares one village per page session. Every choice moves four character meters and the village scene grows or declines. Teams still score for the better choice. Some dilemmas have more than one good choice. People and places are fictional.
+
 ### Tingkatan 1
 | Game | Subject | Standards | Levels |
 |---|---|---|---|

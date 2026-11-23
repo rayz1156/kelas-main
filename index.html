@@ -43,7 +43,7 @@
     <h2 class="section-title" id="mineTitle" hidden>📝 Set saya</h2>
     <div class="grid" id="mine"></div>
 
-    <h2 class="section-title">Akan datang</h2>
+    <h2 class="section-title" id="soonTitle">Akan datang</h2>
     <div class="grid" id="soon"></div>
 
     <p class="note">🔒 Semua senarai nama dan rekod PBD disimpan dalam pelayar peranti ini sahaja. Tiada data murid dihantar ke mana-mana pelayan. Selepas dibuka sekali, permainan boleh dimainkan tanpa internet.</p>
@@ -102,7 +102,9 @@
         h('div', { class: 'tags' }, h('span', { class: 'tag' }, s.year), h('span', { class: 'tag' }, s.subject)),
         h('p', {}, `${s.items.length} soalan · TP${s.tp}`),
         s.sp.length ? h('div', { class: 'tags' }, s.sp.map((c) => h('span', { class: 'tag sp' }, spLabel(c)))) : null)));
-      document.getElementById('soon').replaceChildren(...GAMES.filter((g) => !g.ready && fit(g)).map(card));
+      const soon = GAMES.filter((g) => !g.ready && fit(g));
+      document.getElementById('soon').replaceChildren(...soon.map(card));
+      document.getElementById('soonTitle').hidden = !soon.length;
     }
     render();
   </script>

@@ -167,7 +167,19 @@ export const GAMES = [
     desc: 'Permainan aksi 2D (prototaip): pandu bot penyelamat, elak kayu balak dan kutip kotak bantuan dengan jawapan faktor, gandaan, FSTB atau GSTK yang betul.',
     ready: true,
   },
-  { id: 'kampung-sejahtera', title: 'Kampung Sejahtera', emoji: '🏡', subject: 'Pembentukan Karakter', level: 'Semua', topic: 'Slot Pembentukan Karakter', sp: [], desc: 'Simulasi kelas: setiap pilihan memberi kesan kepada seluruh kampung.', ready: false },
+  {
+    id: 'kampung-sejahtera',
+    howto: [{ e: '🏘️', t: 'Satu kampung untuk seluruh kelas', d: 'Semua pasukan membina Kampung Sejahtera yang sama. Setiap pilihan mengubah empat meter karakter: ❤️ Penyayang, 💪 Berdaya tahan, 🧭 Berupaya memimpin dan 🤝 Warganegara aktif.' }, { e: '💬', t: 'Baca, bincang dan pilih', d: 'Baca situasi (atau tekan 🔈 Dengar). Bincang dengan pasukan: apakah perasaan orang lain, dan apakah kesan setiap pilihan? Wakil pasukan menyebut pilihan.' }, { e: '🌳', t: 'Lihat kesannya', d: 'Pilihan yang baik menjadikan rumah, pokok, dewan dan taman kampung semakin cantik. Pilihan yang kurang baik melemahkan kampung. Pilihan terbaik memberi mata kepada pasukan.' }],
+    notes: { how: ['Untuk slot Pembentukan Karakter, semua tahap. Berdasarkan empat elemen teras karakter KP2027: penyayang, berdaya tahan, berupaya memimpin dan warganegara aktif, serta pembelajaran sosioemosi.', 'Tahun 1 dan 2: guna TP1 hingga TP3 dan bacakan situasi. Tingkatan: cuba TP4, iaitu murid sebagai ketua belia yang merancang projek komuniti.', 'Kuasa permainan ini ialah perbincangan. Selepas setiap pilihan, tanya: "Bagaimana perasaan orang itu?" dan "Apakah pilihan lain yang juga baik?" Sesetengah dilema ada lebih daripada satu pilihan yang baik.', 'Mod Klasik atau Papan Kejutan paling sesuai kerana kesan setiap pilihan dipaparkan. Kampung bermula semula apabila halaman dibuka semula.'], extend: 'Projek kelas: murid memilih satu masalah sebenar di sekolah atau kampung, merancang penyelesaian seperti di TP4, kemudian melaksanakan dan melaporkannya.' },
+    title: 'Kampung Sejahtera',
+    emoji: '🏡',
+    subject: 'Pembentukan Karakter',
+    level: 'Semua',
+    topic: 'Slot Pembentukan Karakter',
+    sp: ['Penyayang', 'Berdaya tahan', 'Berupaya memimpin', 'Warganegara aktif'],
+    desc: 'Simulasi kelas: setiap pilihan dalam dilema harian memberi kesan kepada seluruh kampung. Bina kampung yang penyayang, berdaya tahan, berpemimpin dan aktif.',
+    ready: true,
+  },
 ];
 
 /** SP codes start with a digit; grammar areas and other labels are shown as they are. */

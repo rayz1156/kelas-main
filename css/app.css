@@ -268,6 +268,23 @@ html.big .game-head { font-size: 20px; }
 .bot-pad { display: flex; gap: 10px; justify-content: center; }
 .bot-pad .btn { min-width: 64px; }
 .bot-status { font-weight: 800; color: var(--ink-soft); text-align: center; min-height: 1.4em; }
+/* ---------- Kampung Sejahtera ---------- */
+.kampung { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; background: linear-gradient(#cfe8ff, #e9f6d8); color: #1f2430; border-radius: 18px; padding: 8px 14px; width: 100%; max-width: 980px; }
+.kampung .sky { font-size: 30px; }
+.kampung .plots { display: flex; gap: 2px; font-size: clamp(20px, 2.4vw, 30px); line-height: 1; }
+.kampung .meters { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.meter { display: inline-flex; align-items: center; gap: 4px; font-weight: 900; font-size: 15px; }
+.meter i { width: 46px; height: 9px; border-radius: 6px; background: rgba(0,0,0,.12); position: relative; overflow: hidden; }
+.meter i::after { content: ''; position: absolute; inset: 0; width: calc(var(--v) * 100%); background: #1f9d55; border-radius: 6px; transition: width .4s; }
+.k-card { display: flex; gap: 14px; align-items: center; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); padding: 8px 18px; max-width: 980px; width: 100%; text-align: left; }
+.k-emoji { font-size: clamp(36px, 4vw, 52px); line-height: 1; }
+.k-card p { margin: 0; font-size: clamp(18px, 1.9vw, 25px); font-weight: 700; line-height: 1.35; }
+.k-explain { display: grid; gap: 10px; justify-items: center; }
+.fx-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.fx { border-radius: 999px; padding: 4px 12px; font-weight: 900; font-size: 16px; }
+.fx.up { background: #d8f3e3; color: #12643a; } .fx.down { background: #fde2e2; color: #9b1c1c; }
+.k-explain .kampung { padding: 6px 10px; }
+@media (min-width: 900px) { .choices.long.k-opts { grid-template-columns: 1fr 1fr; max-width: 1100px; } .choices.long.k-opts .choice { min-height: 64px; font-size: clamp(18px, 1.6vw, 24px); } }
 /* ---------- Tutorial ---------- */
 .quick-guide summary { font-weight: 900; font-size: 20px; cursor: pointer; }
 .guide-steps { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }

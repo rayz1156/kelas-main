@@ -1,10 +1,10 @@
 // Offline support. Pages: network first, falling back to cache. Assets: cache first, refreshed in the background.
-const VERSION = 'km-v6';
+const VERSION = 'km-v7';
 const CORE = [
   './', './index.html', './game.html', './laporan.html', './bina.html', './404.html',
   './css/app.css', './js/core.js', './js/data.js', './js/shell.js',
   './js/games/kedai-runcit.js', './js/games/ikatan-nombor.js', './js/games/suku-kata.js', './js/games/selamat.js', './js/games/set.js',
-  './js/games/banjir.js', './js/games/neraca.js', './js/games/irama.js', './js/games/tatabahasa.js', './js/games/detektif-berita.js', './js/games/bot-banjir.js',
+  './js/games/banjir.js', './js/games/neraca.js', './js/games/irama.js', './js/games/tatabahasa.js', './js/games/detektif-berita.js', './js/games/bot-banjir.js', './js/games/kampung-sejahtera.js',
   './icon.svg', './manifest.webmanifest',
 ];
 
