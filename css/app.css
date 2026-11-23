@@ -262,6 +262,42 @@ html.big .stage { zoom: 1.25; }
 html.big .game-head { font-size: 20px; }
 .icon-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
+/* ---------- Tutorial ---------- */
+.quick-guide summary { font-weight: 900; font-size: 20px; cursor: pointer; }
+.guide-steps { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.guide-steps li { background: var(--surface-2); border-radius: 16px; padding: 14px 16px; display: grid; gap: 4px; color: var(--ink-soft); line-height: 1.4; }
+.guide-steps span { font-size: 34px; }
+.guide-steps b { color: var(--ink); font-size: 19px; }
+.tut-open { width: 100%; justify-content: center; font-size: 22px; padding: 16px; margin-bottom: 16px; }
+.tut-back { align-items: start; overflow-y: auto; }
+.tut { background: var(--surface); color: var(--ink); border-radius: 26px; padding: 22px 26px; max-width: 980px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: pop .25s ease-out; margin: auto; }
+.tut-head { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.tut-head h2 { margin: 0; font-size: clamp(20px, 2.4vw, 30px); }
+.tut-tabs { display: flex; gap: 8px; margin: 14px 0; flex-wrap: wrap; }
+.tut-tabs .chip[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.tut-step { display: flex; gap: 20px; align-items: center; background: var(--surface-2); border-radius: 20px; padding: 18px 22px; }
+.tut-emoji { font-size: clamp(54px, 7vw, 84px); line-height: 1; }
+.tut-step small { font-weight: 800; color: var(--ink-soft); }
+.tut-step h3 { margin: 2px 0 6px; font-size: clamp(22px, 2.6vw, 32px); }
+.tut-step p { margin: 0; font-size: clamp(17px, 1.8vw, 23px); line-height: 1.45; }
+.tut-practice { margin-top: 16px; display: grid; gap: 14px; justify-items: center; }
+.tut-practice .prompt { font-size: clamp(22px, 2.6vw, 32px); }
+.tut-practice .play-area { width: 100%; }
+.tut-practice .choice { min-height: 64px; font-size: clamp(18px, 2vw, 24px); }
+.tut-fb { font-size: 19px; text-align: center; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+.tut-fb:empty { display: none; }
+.tut-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.tut-dots { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.tut-dot { width: 14px; height: 14px; border-radius: 50%; border: 0; background: var(--line); padding: 0; cursor: pointer; }
+.tut-dot.on { background: var(--brand); transform: scale(1.25); }
+@media (max-width: 640px) {
+  .tut { padding: 16px; border-radius: 18px; }
+  .tut-step { flex-direction: column; text-align: center; gap: 8px; padding: 14px; }
+  .tut-foot { flex-wrap: wrap; }
+  .tut-dots { order: -1; width: 100%; }
+  .tut-foot .btn { padding: 10px 14px; font-size: 16px; flex: 1; }
+}
+
 /* ---------- Teacher notes ---------- */
 details.notes summary { font-weight: 900; font-size: 20px; cursor: pointer; }
 details.notes ul { margin: 10px 0; padding-left: 22px; }

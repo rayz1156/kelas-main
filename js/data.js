@@ -39,6 +39,7 @@ export const SAMPLE_SET = {
 export const GAMES = [
   {
     id: 'kedai-runcit',
+    howto: [{ e: '💵', t: 'Kenal wang', d: 'Wang kertas RM1, RM5 dan RM10, serta duit syiling 5, 10, 20 dan 50 sen. Lihat warna dan nilainya.' }, { e: '🙋', t: 'Jawab bersama pasukan', d: 'Bincang dengan rakan sepasukan. Wakil pasukan menyebut jawapan, kemudian guru menekan butang.' }, { e: '🛒', t: 'TP3: bayar di kedai', d: 'Tekan wang untuk membayar harga barang dengan tepat. Tersilap? Tekan ↶ Undur. Tekan Semak ✔ apabila selesai.' }],
     notes: { how: ['Guru tayangkan permainan. Pasukan berbincang dan wakil menyebut jawapan.', 'TP3: wakil pasukan ke hadapan untuk menekan wang dan membayar sendiri.', 'Gunakan wang contoh sebenar di meja sebelum bermain.'], extend: 'Lakonan kedai runcit di kelas dengan wang contoh. Murid bergilir menjadi penjual dan pembeli.' },
     title: 'Kedai Runcit RM10',
     emoji: '🛒',
@@ -51,6 +52,7 @@ export const GAMES = [
   },
   {
     id: 'ikatan-nombor',
+    howto: [{ e: '🔟', t: 'Petak sepuluh', d: 'Kira bulatan berwarna. Berapa lagi bulatan diperlukan supaya penuh 10?' }, { e: '✋', t: 'Tunjuk jari dahulu', d: 'Semua murid tunjuk jawapan dengan jari. Kemudian wakil pasukan menyebut jawapan.' }, { e: '📖', t: 'TP3: masalah cerita', d: 'Tekan 🔈 Dengar untuk mendengar cerita. Cari jumlahnya dengan menambah.' }],
     notes: { how: ['Mulakan dengan bahan maujud (guli, penyedut minuman) sebelum petak sepuluh.', 'Minta murid menunjuk jari untuk jawapan sebelum guru menekan.', 'TP3: minta pasukan membina ayat matematik di papan putih.'], extend: 'Permainan kad ikatan nombor berpasangan: cari pasangan yang menjadi 10.' },
     title: 'Ikatan Nombor',
     emoji: '🔢',
@@ -63,6 +65,7 @@ export const GAMES = [
   },
   {
     id: 'suku-kata',
+    howto: [{ e: '🔈', t: 'Dengar perkataan', d: 'Tekan 🔈 Dengar untuk mendengar sebutan perkataan.' }, { e: '🧩', t: 'TP1: suku kata hilang', d: 'Lihat gambar dan perkataan. Pilih suku kata yang hilang.' }, { e: '🚂', t: 'TP2 dan TP3: bina kereta api', d: 'Tekan gerabak suku kata mengikut urutan untuk membina perkataan. Baca setiap suku kata dengan kuat bersama-sama.' }],
     notes: { how: ['Tekan Dengar untuk sebutan perkataan.', 'Minta seluruh kelas membaca setiap suku kata dengan kuat semasa gerabak dicantum.', 'Sesuai untuk SK dan SJK.'], extend: 'Murid memegang kad suku kata dan beratur membentuk kereta api perkataan.' },
     title: 'Kereta Api Suku Kata',
     emoji: '🚂',
@@ -75,6 +78,7 @@ export const GAMES = [
   },
   {
     id: 'selamat',
+    howto: [{ e: '🖼️', t: 'Lihat situasi', d: 'Guru membaca situasi atau tekan 🔈 Dengar. Lihat gambarnya.' }, { e: '👍', t: 'Selamat atau tidak?', d: 'Pilih sama ada situasi itu selamat, atau sama ada maklumat itu boleh dikongsi dengan orang yang tidak dikenali.' }, { e: '🛡️', t: 'TP3: apa patut aku buat?', d: 'Pilih tindakan yang betul: bertenang, beritahu orang yang dipercayai atau menjerit meminta pertolongan.' }],
     notes: { how: ['Bincangkan setiap situasi selepas jawapan: kenapa selamat atau tidak?', 'SP 3.1.4 hingga 3.1.6 (sentuhan tidak selamat) tidak dimasukkan. Ajar melalui sesi bimbingan guru.', 'Nombor kecemasan dan pasukan keselamatan boleh disambung dengan lawatan atau ceramah.'], extend: 'Murid melukis poster situasi tidak selamat (SP 3.1.9).' },
     title: 'Selamat atau Tidak?',
     emoji: '🛡️',
@@ -87,6 +91,7 @@ export const GAMES = [
   },
   {
     id: 'banjir',
+    howto: [{ e: '🔢', t: 'Faktor dan gandaan', d: 'Faktor membahagi sesuatu nombor dengan tepat. Gandaan ialah hasil darab nombor itu.' }, { e: '✏️', t: 'Guna kertas', d: 'Lukis pokok faktor atau buat pembahagian berulang di atas kertas sebelum menjawab.' }, { e: '🚤', t: 'TP3 dan TP4: FSTB dan GSTK', d: 'FSTB untuk mengagih barang sama rata (bilangan kit paling banyak). GSTK untuk mencari bila dua perkara berlaku serentak (bas bertolak bersama).' }],
     notes: { how: ['Benarkan pasukan menggunakan kertas sebelum menjawab. Minta wakil menunjukkan pokok faktor atau pembahagian berulang di papan putih.', 'TP4 mengikut Nota dokumen: agihan bantuan banjir yang adil tanpa pembaziran (FSTB) dan jadual pengangkutan awam (GSTK).', 'Bincangkan kenapa FSTB memberi bilangan kit maksimum, dan GSTK memberi masa menunggu paling singkat.'], extend: 'Projek kecil: murid merancang agihan barang sumbangan sekolah sebenar menggunakan FSTB.' },
     title: 'Misi Bantuan Banjir',
     emoji: '🚤',
@@ -99,6 +104,7 @@ export const GAMES = [
   },
   {
     id: 'neraca',
+    howto: [{ e: '⚖️', t: 'Neraca seimbang', d: 'Persamaan seperti neraca: kedua-dua belah sama berat.' }, { e: '➖', t: 'Buat perkara yang sama', d: 'Tambah, tolak, darab atau bahagi kedua-dua belah dengan nombor yang sama untuk mencari nilai pemboleh ubah.' }, { e: '📝', t: 'TP4: masalah harian', d: 'Tulis persamaan daripada cerita, selesaikan, kemudian semak dengan menggantikan jawapan ke dalam persamaan.' }],
     notes: { how: ['Gunakan gambar neraca untuk menerangkan: apa yang dibuat pada sebelah kiri mesti dibuat pada sebelah kanan.', 'Minta pasukan menulis langkah penyelesaian sebelum memilih jawapan. Semak dengan menggantikan nilai ke dalam persamaan.', 'TP4: minta pasukan menyatakan pemboleh ubah dan membentuk persamaan dahulu.'], extend: 'Pasukan mencipta masalah harian sendiri (kewangan, sukan, kejuruteraan) dan bertukar dengan pasukan lain.' },
     title: 'Neraca Persamaan',
     emoji: '⚖️',
@@ -111,6 +117,7 @@ export const GAMES = [
   },
   {
     id: 'irama',
+    howto: [{ e: '🎵', t: 'Kenal simbol', d: 'Not dan tanda rehat mempunyai nilai detik. Krocet bernilai 1 detik.' }, { e: '📏', t: 'Meter dan bar', d: 'Meter 2/4, 3/4 dan 4/4 memberitahu bilangan detik krocet dalam satu bar.' }, { e: '👏', t: 'TP3: dengar dan tepuk', d: 'Tekan ▶ untuk mendengar. Kiraan 1, 2, 3, 4 dimainkan dahulu. Pilih corak yang didengar, atau tepuk semula. Guru menanda Tepat atau Belum tepat. Pastikan pembesar suara dihidupkan.' }],
     notes: { how: ['Pastikan pembesar suara dihidupkan. Setiap corak dimulakan dengan kiraan 1, 2, 3, 4.', 'TP3 Tiru dan Baca: pasukan menepuk corak, guru menanda Tepat atau Belum tepat.', 'Ajar cara menepuk: krocet satu tepukan, dua kuaver dua tepukan pantas, minim ditahan dua detik.'], extend: 'Panggil dan sahut (SP 3.1.2): satu pasukan menepuk corak 4 detik, pasukan lain menjawab dengan corak ciptaan sendiri (SP 3.1.3).' },
     title: 'Irama Gema',
     emoji: '🥁',
@@ -123,6 +130,7 @@ export const GAMES = [
   },
   {
     id: 'tatabahasa',
+    howto: [{ e: '🔍', t: 'Perkataan berwarna kuning', d: 'Perkataan yang ditanda kuning ialah perkataan yang disoal.' }, { e: '🏷️', t: 'Kenal bentuk kata', d: 'Kenal pasti golongan kata, imbuhan, kata majmuk dan kata ganda.' }, { e: '✍️', t: 'TP3 dan TP4: ayat', d: 'Kenal pasti ragam, jenis dan susunan ayat. Pilih ayat yang betul tatabahasanya.' }],
     notes: { how: ['Dokumen Kurikulum BM Tingkatan 1 tiada kod SP atau Standard Prestasi khusus untuk tatabahasa. Tahap dalam permainan ini ialah urutan pengajaran dan boleh disesuaikan.', 'Selepas setiap soalan, minta pasukan membina ayat sendiri menggunakan perkataan atau struktur yang sama.', 'TP4 sesuai sebagai latihan sebelum menulis karangan.'], extend: 'Detektif ayat: pasukan mencari contoh golongan kata dan ragam ayat dalam keratan akhbar atau novel KOMSAS.' },
     title: 'Detektif Tatabahasa',
     emoji: '🕵️',
@@ -135,6 +143,7 @@ export const GAMES = [
   },
   {
     id: 'detektif-berita',
+    howto: [{ e: '📰', t: 'Imbas berita', d: 'Baca tajuk dahulu, kemudian imbas untuk mencari siapa, apa, bila, di mana dan mengapa.' }, { e: '💭', t: 'Fakta atau pendapat', d: 'Fakta boleh dibuktikan. Pendapat ialah pandangan atau perasaan seseorang.' }, { e: '🚩', t: 'TP4: jadi detektif', d: 'Tanya: Siapa sumbernya? Adakah maklumatnya lengkap? Adakah satu pihak sahaja yang didengar? Semak sumber rasmi sebelum berkongsi.' }],
     notes: { how: ['Baca berita bersama dahulu. Minta satu wakil pasukan membaca dengan sebutan dan intonasi yang betul (SP 3.1.1) sebelum soalan dijawab.', 'TP1 dan TP2 melatih teknik luncuran dan imbasan seperti yang dicadangkan dalam Nota. Beri masa 30 saat untuk mengimbas.', 'TP4 ialah respons kritis. Selepas setiap jawapan, minta pasukan menerangkan bukti dalam teks yang menyokong pilihan mereka.', 'Semua berita, tempat dan watak ialah rekaan. Tema mengikut Nota: PKJR, Pendidikan Kewangan dan ESD.'], extend: 'Bawa keratan akhbar atau mesej tular sebenar (tanpa maklumat peribadi). Pasukan menilai sumber, kelengkapan 5W1H dan berat sebelah, kemudian menulis semula berita itu supaya lengkap.' },
     title: 'Detektif Berita',
     emoji: '🔎',

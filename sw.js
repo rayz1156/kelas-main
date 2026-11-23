@@ -1,5 +1,5 @@
 // Offline support. Pages: network first, falling back to cache. Assets: cache first, refreshed in the background.
-const VERSION = 'km-v4';
+const VERSION = 'km-v5';
 const CORE = [
   './', './index.html', './game.html', './laporan.html', './bina.html', './404.html',
   './css/app.css', './js/core.js', './js/data.js', './js/shell.js',

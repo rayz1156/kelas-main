@@ -22,6 +22,21 @@ const SURPRISES = [
   { id: 'oops', e: '💥', t: 'Alamak!', d: 'Hilang 10 mata', run: (me) => { me.score = Math.max(0, me.score - 10); } },
 ];
 
+// Tutorial steps shared by every game. Pupil steps specific to a game come from `howto` in data.js.
+const TEACHER_STEPS = [
+  { e: '📽️', t: 'Sediakan kelas', d: 'Tayangkan permainan di projektor atau TV. Tekan 🔍 untuk paparan besar dan ⛶ untuk skrin penuh. Satu komputer guru sudah memadai; murid tidak perlu peranti.' },
+  { e: '🎮', t: 'Pilih mod permainan', d: '🎯 Klasik: pasukan bergilir menjawab. 🎁 Papan Kejutan: pasukan memilih nombor di papan, dan ada kad kejutan (bonus, curi, tukar mata). ⏱️ Lumba Masa: setiap pasukan menjawab sebanyak mungkin dalam masa yang ditetapkan.' },
+  { e: '📊', t: 'Pilih tahap (TP)', d: 'TP1 TAHU, TP2 FAHAM, TP3 BUAT dan TP4 AMAL (Tahap II dan sekolah menengah). Mulakan dengan TP yang rendah, kemudian naikkan tahap.' },
+  { e: '👥', t: 'Bahagikan pasukan', d: 'Pilih 1 hingga 4 pasukan. Jika senarai nama kelas sudah dimasukkan di Laporan PBD, murid diagihkan secara rawak. Tekan 🔀 Kocok semula untuk mengagih semula.' },
+  { e: '🙋', t: 'Semasa bermain', d: 'Pasukan berbincang, wakil menyebut jawapan, dan guru menekan butang jawapan (atau kekunci 1 hingga 4). Penerangan muncul selepas setiap jawapan: bincangkan, kemudian tekan Enter untuk soalan seterusnya.' },
+  { e: '📝', t: 'Selepas bermain', d: 'Tandakan adab setiap pasukan, semak TP yang dicadangkan, kemudian simpan ke Laporan PBD. Rekod disimpan dalam peranti ini sahaja dan tidak dihantar ke mana-mana.' },
+];
+const PUPIL_DEFAULT = [
+  { e: '👀', t: 'Baca soalan', d: 'Baca soalan di skrin bersama pasukan. Tekan 🔈 Dengar jika ada.' },
+  { e: '🙋', t: 'Bincang dan jawab', d: 'Bincang dengan rakan sepasukan. Wakil pasukan menyebut jawapan, kemudian guru menekan butang.' },
+  { e: '💡', t: 'Belajar daripada jawapan', d: 'Betul atau salah, baca penerangan yang muncul. Setiap jawapan betul memberi mata kepada pasukan.' },
+];
+
 /** Big answer buttons. opts: [{ label, text?, correct }]. Keys 1-9 also work. */
 export function choices(area, opts, done) {
   const wrap = h('div', { class: 'choices' });
@@ -60,7 +75,9 @@ export async function boot() {
   const meta = gameById(id);
   if (!meta || !meta.ready) { location.replace('./'); return; }
   const mod = await import(`./games/${id}.js`);
-  new Shell(meta, mod.default).setup();
+  const shell = new Shell(meta, mod.default);
+  shell.setup();
+  if (!store.get('tut:' + id, false)) shell.tutorial();
 }
 
 class Shell {
@@ -91,6 +108,7 @@ class Shell {
       h('span', { style: { fontSize: '30px' } }, this.meta.emoji),
       h('h1', {}, this.meta.title),
       h('div', { class: 'scoreboard', id: 'sb' }),
+      h('button', { class: 'icon-btn', type: 'button', title: 'Cara bermain', 'aria-label': 'Buka tutorial cara bermain', onclick: () => this.tutorial() }, '❓'),
       bigBtn, muteBtn,
       h('button', { class: 'icon-btn', type: 'button', title: 'Skrin penuh', onclick: toggleFullscreen }, '⛶'),
     );
@@ -143,6 +161,7 @@ class Shell {
           h('span', { class: 'tag' }, `${this.meta.subject} · ${this.meta.level}`),
           h('span', { class: 'tag' }, this.meta.topic),
           this.set?.shared ? h('button', { class: 'chip', type: 'button', onclick: (e) => this.saveShared(e.currentTarget) }, '💾 Simpan ke Set Saya') : null),
+        h('button', { class: 'btn tut-open', type: 'button', onclick: () => this.tutorial() }, '🎓 Tutorial: cara bermain (guru dan murid)'),
         notes ? h('details', { class: 'panel notes' },
           h('summary', {}, '📘 Nota guru'),
           h('ul', {}, notes.how.map((x) => h('li', {}, x))),
@@ -176,6 +195,86 @@ class Shell {
           'Tip: tayangkan di projektor dan tekan 🔍 untuk paparan besar. Murid menjawab secara lisan, guru menekan jawapan. Kekunci 1 hingga 4 memilih jawapan, Enter untuk seterusnya.'),
       ),
     );
+  }
+
+  // ---------- tutorial ----------
+  tutorial(tab = 'guru') {
+    this.closeTutorial();
+    const steps = {
+      guru: TEACHER_STEPS,
+      murid: [...(this.meta.howto || PUPIL_DEFAULT), { practice: true, e: '🎯', t: 'Cuba satu soalan', d: 'Soalan latihan ini tidak dikira dalam markah.' }],
+    };
+    let i = 0;
+    const body = h('div', { class: 'tut-body' });
+    const dots = h('div', { class: 'tut-dots' });
+    const back = h('button', { class: 'btn secondary', type: 'button' }, '← Kembali');
+    const next = h('button', { class: 'btn green', type: 'button' });
+    const tabs = h('div', { class: 'tut-tabs', role: 'tablist' });
+    const draw = () => {
+      const list = steps[tab];
+      const st = list[i];
+      tabs.replaceChildren(...[['guru', '👩‍🏫 Untuk guru'], ['murid', '🧒 Untuk murid']].map(([k, label]) =>
+        h('button', { class: 'chip', type: 'button', role: 'tab', 'aria-selected': String(k === tab), onclick: () => { tab = k; i = 0; draw(); } }, label)));
+      body.replaceChildren(...[
+        h('div', { class: 'tut-step' },
+          h('div', { class: 'tut-emoji', 'aria-hidden': 'true' }, st.e),
+          h('div', {}, h('small', {}, `Langkah ${i + 1} daripada ${list.length}`), h('h3', {}, st.t), h('p', {}, st.d))),
+        st.practice ? this.practice() : null,
+        tab === 'guru' && i === list.length - 1 && this.meta.notes ? h('p', { class: 'note' }, '📘 Cadangan khusus untuk permainan ini ada dalam Nota guru di skrin persediaan.') : null].filter(Boolean));
+      dots.replaceChildren(...list.map((_, k) => h('button', { class: 'tut-dot' + (k === i ? ' on' : ''), type: 'button', 'aria-label': `Langkah ${k + 1}`, onclick: () => { i = k; draw(); } })));
+      back.disabled = i === 0;
+      const last = i === list.length - 1;
+      next.textContent = last ? (tab === 'guru' ? 'Seterusnya: untuk murid ➜' : 'Mula bermain ✔') : 'Seterusnya ➜';
+    };
+    back.onclick = () => { if (i > 0) { i--; draw(); } };
+    next.onclick = () => {
+      if (i < steps[tab].length - 1) { i++; draw(); }
+      else if (tab === 'guru') { tab = 'murid'; i = 0; draw(); }
+      else this.closeTutorial();
+    };
+    this.tut = h('div', { class: 'overlay tut-back', onclick: (e) => { if (e.target === this.tut) this.closeTutorial(); } },
+      h('div', { class: 'tut', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Tutorial cara bermain' },
+        h('div', { class: 'tut-head' },
+          h('h2', {}, `🎓 Cara bermain: ${this.meta.emoji} ${this.meta.title}`),
+          h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Tutup tutorial', onclick: () => this.closeTutorial() }, '✕')),
+        tabs, body,
+        h('div', { class: 'tut-foot' }, back, dots, next)));
+    document.body.append(this.tut);
+    draw();
+    next.focus();
+  }
+
+  closeTutorial() {
+    if (!this.tut) return;
+    this.tut.remove(); this.tut = null;
+    store.set('tut:' + this.meta.id, true);
+  }
+
+  /** One unscored question from the easiest level, so pupils see how answering works. */
+  practice() {
+    const box = h('div', { class: 'tut-practice' });
+    const run = () => {
+      const lv = this.game.levels[Object.keys(this.game.levels)[0]];
+      const q = lv.make();
+      const area = h('div', { class: 'play-area' });
+      const fb = h('div', { class: 'tut-fb', 'aria-live': 'polite' });
+      box.replaceChildren(
+        h('div', { class: 'prompt' }, ...[q.prompt, q.sub ? h('small', {}, q.sub) : null,
+          q.say ? h('button', { class: 'icon-btn', type: 'button', onclick: () => speak(q.say) }, '🔈 Dengar') : null].filter(Boolean)),
+        area, fb);
+      let answered = false;
+      q.render(area, (ok, reveal) => {
+        if (answered) return;
+        answered = true;
+        sfx(ok ? 'ok' : 'no');
+        fb.replaceChildren(...[
+          h('b', {}, ok ? '✅ Betul! ' : `💡 Hampir! Jawapan: ${reveal}. `),
+          q.explain ? h('span', {}, q.explain) : null,
+          h('button', { class: 'btn secondary', type: 'button', onclick: run }, '🔁 Cuba soalan lain')].filter(Boolean));
+      });
+    };
+    run();
+    return box;
   }
 
   saveShared(btn) {
@@ -263,6 +362,7 @@ class Shell {
   closeOverlay() { this.overlay?.remove(); this.overlay = null; }
 
   onKey(e) {
+    if (this.tut) { if (e.key === 'Escape') this.closeTutorial(); return; }
     if (e.target.matches?.('input, textarea, select')) return;
     if (this.overlay && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); $('#nextBtn', this.overlay)?.click(); return; }
     if (this.overlay) return;
