@@ -10,9 +10,36 @@ export const TP = {
 
 export const ADAB = ['Bergilir-gilir', 'Menghormati rakan', 'Bekerjasama'];
 
+/** Tahap I (Tahun 1-2) stops at TP3; everything else uses TP1-TP4. */
+export const maxTPFor = (year) => (/^Tahun [12]$/.test(year || '') ? 3 : 4);
+
+export const YEARS = ['Tahun 1', 'Tahun 2', 'Tahun 3', 'Tahun 4', 'Tahun 5', 'Tahun 6', 'Tingkatan 1', 'Tingkatan 2', 'Tingkatan 3', 'Tingkatan 4', 'Tingkatan 5'];
+export const SUBJECTS = ['Bahasa Melayu', 'Bahasa Inggeris', 'Matematik', 'Alam dan Manusia', 'Sains', 'Pendidikan Islam', 'Pendidikan Moral', 'Sejarah', 'Geografi', 'Pendidikan Jasmani', 'Pendidikan Jasmani dan Pendidikan Kesihatan', 'Pendidikan Seni Visual', 'Pendidikan Muzik', 'Bahasa Cina', 'Bahasa Tamil', 'Pembentukan Karakter', 'Lain-lain'];
+
+/** Game modes: the same questions, wrapped in different play styles. */
+export const MODES = {
+  klasik: { label: '🎯 Klasik', small: 'Pasukan bergilir menjawab satu demi satu' },
+  papan: { label: '🎁 Papan Kejutan', small: 'Pilih nombor. Ada kad kejutan: curi, tukar, bonus!' },
+  lumba: { label: '⏱️ Lumba Masa', small: 'Jawab sebanyak mungkin. Jawapan betul tambah masa' },
+};
+
+/** Sample teacher-made set, used to show what the set builder can do. */
+export const SAMPLE_SET = {
+  title: 'Deria Saya', subject: 'Alam dan Manusia', year: 'Tahun 1', sp: ['1.1.4'], tp: 1,
+  items: [
+    { e: '👁️', q: 'Bahagian tubuh ini digunakan untuk melihat. Apakah namanya?', a: 'Mata', wrong: ['Telinga', 'Hidung'] },
+    { e: '👂', q: 'Bahagian tubuh ini digunakan untuk mendengar. Apakah namanya?', a: 'Telinga', wrong: ['Lidah', 'Mata'] },
+    { e: '👃', q: 'Bahagian tubuh ini digunakan untuk menghidu. Apakah namanya?', a: 'Hidung', wrong: ['Kulit', 'Telinga'] },
+    { e: '👅', q: 'Bahagian tubuh ini digunakan untuk merasa. Apakah namanya?', a: 'Lidah', wrong: ['Hidung', 'Mata'] },
+    { e: '✋', q: 'Kita menyentuh dan merasa sejuk atau panas dengan bahagian tubuh apa?', a: 'Kulit', wrong: ['Lidah', 'Telinga'] },
+    { e: '🌸', q: 'Deria apakah yang kita gunakan untuk mengetahui bunga itu wangi?', a: 'Deria bau (hidung)', wrong: ['Deria rasa (lidah)', 'Deria dengar (telinga)'] },
+  ],
+};
+
 export const GAMES = [
   {
     id: 'kedai-runcit',
+    notes: { how: ['Guru tayangkan permainan. Pasukan berbincang dan wakil menyebut jawapan.', 'TP3: wakil pasukan ke hadapan untuk menekan wang dan membayar sendiri.', 'Gunakan wang contoh sebenar di meja sebelum bermain.'], extend: 'Lakonan kedai runcit di kelas dengan wang contoh. Murid bergilir menjadi penjual dan pembeli.' },
     title: 'Kedai Runcit RM10',
     emoji: '🛒',
     subject: 'Matematik',
@@ -24,6 +51,7 @@ export const GAMES = [
   },
   {
     id: 'ikatan-nombor',
+    notes: { how: ['Mulakan dengan bahan maujud (guli, penyedut minuman) sebelum petak sepuluh.', 'Minta murid menunjuk jari untuk jawapan sebelum guru menekan.', 'TP3: minta pasukan membina ayat matematik di papan putih.'], extend: 'Permainan kad ikatan nombor berpasangan: cari pasangan yang menjadi 10.' },
     title: 'Ikatan Nombor',
     emoji: '🔢',
     subject: 'Matematik',
@@ -35,6 +63,7 @@ export const GAMES = [
   },
   {
     id: 'suku-kata',
+    notes: { how: ['Tekan Dengar untuk sebutan perkataan.', 'Minta seluruh kelas membaca setiap suku kata dengan kuat semasa gerabak dicantum.', 'Sesuai untuk SK dan SJK.'], extend: 'Murid memegang kad suku kata dan beratur membentuk kereta api perkataan.' },
     title: 'Kereta Api Suku Kata',
     emoji: '🚂',
     subject: 'Bahasa Melayu',
@@ -46,6 +75,7 @@ export const GAMES = [
   },
   {
     id: 'selamat',
+    notes: { how: ['Bincangkan setiap situasi selepas jawapan: kenapa selamat atau tidak?', 'SP 3.1.4 hingga 3.1.6 (sentuhan tidak selamat) tidak dimasukkan. Ajar melalui sesi bimbingan guru.', 'Nombor kecemasan dan pasukan keselamatan boleh disambung dengan lawatan atau ceramah.'], extend: 'Murid melukis poster situasi tidak selamat (SP 3.1.9).' },
     title: 'Selamat atau Tidak?',
     emoji: '🛡️',
     subject: 'Alam dan Manusia',

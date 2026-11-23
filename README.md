@@ -9,6 +9,17 @@ Free classroom games for Malaysian teachers, aligned to the Kurikulum Persekolah
 - Class lists and records stay in the browser (localStorage). No pupil data leaves the device.
 - Works offline after the first visit (service worker).
 
+## Play modes
+Every game, including teacher-made sets, plays in three modes:
+- **Klasik**: teams take turns, one question each.
+- **Papan Kejutan**: teams pick numbered tiles. Some tiles hide surprise cards (bonus, steal, swap, share, lose points, extra turn). Inspired by Baamboozle's board.
+- **Lumba Masa**: each team answers as many as it can against a timer. Correct answers add 3 seconds.
+
+TP suggestions use only real answers, never surprise-card points.
+
+## Bina Set (teacher-made sets)
+`bina.html` lets a teacher write questions for any subject, year and SP. Items with wrong options become multiple choice. Items without them are answered aloud: the teacher reveals the answer and marks it right or wrong. Sets are stored locally and can be shared as a link (`game.html?g=set#s=...`, the set encoded in the URL fragment, never sent to a server) or as a JSON file.
+
 ## Games in this version (Tahun 1)
 | Game | Subject | Standards |
 |---|---|---|

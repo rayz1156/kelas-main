@@ -199,3 +199,48 @@ label.inline { display: flex; align-items: center; gap: 8px; font-weight: 700; }
   .note-m { width: 130px; height: 66px; font-size: 24px; }
   .group { min-width: 0; width: 100%; }
 }
+
+/* ---------- Papan Kejutan (board) ---------- */
+.board { display: grid; gap: 12px; margin-top: 16px; }
+.tile { border: 0; border-radius: 18px; min-height: 96px; font-size: clamp(34px, 5vw, 56px); font-weight: 900; color: #fff;
+  background: linear-gradient(160deg, #3b82f6, #1d4ed8); box-shadow: var(--shadow); transition: transform .12s; }
+.tile:nth-child(odd) { background: linear-gradient(160deg, #60a5fa, #2563eb); }
+.tile:hover:not(:disabled) { transform: translateY(-3px) scale(1.02); }
+.tile.done { background: var(--surface-2); color: var(--ink-soft); box-shadow: none; }
+.tile.done.right { color: var(--ok); }
+.tile.done.wrong { color: var(--no); }
+.surprise-card { border: 6px solid var(--gold); }
+
+/* ---------- Lumba Masa (timer) ---------- */
+.clock-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.clock { font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums; background: var(--surface); border: 3px solid var(--line); border-radius: 18px; padding: 4px 18px; }
+.clock.low { color: var(--no); border-color: var(--no); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { transform: scale(1.06); } }
+.flash { position: fixed; top: 22%; left: 50%; transform: translateX(-50%); font-size: 56px; font-weight: 900; padding: 14px 30px; border-radius: 22px; z-index: 70; pointer-events: none; animation: pop .2s ease-out; }
+.flash.ok { background: var(--ok); color: #fff; }
+.flash.no { background: var(--no); color: #fff; }
+
+/* ---------- Big display mode for projectors ---------- */
+html.big .stage { zoom: 1.25; }
+html.big .game-head { font-size: 20px; }
+.icon-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* ---------- Teacher notes ---------- */
+details.notes summary { font-weight: 900; font-size: 20px; cursor: pointer; }
+details.notes ul { margin: 10px 0; padding-left: 22px; }
+details.notes p { margin: 6px 0 0; color: var(--ink-soft); }
+
+/* ---------- Set builder ---------- */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.form-grid label { display: flex; flex-direction: column; gap: 6px; font-weight: 800; }
+.form-grid label:first-child { grid-column: 1 / -1; }
+.q-rows { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+.q-row { display: grid; grid-template-columns: 72px 1fr auto; gap: 10px; align-items: start; border: 2px solid var(--line); border-radius: 14px; padding: 10px; }
+.q-row textarea { min-height: 60px; }
+.q-fields { display: grid; gap: 8px; }
+.q-emoji { width: 72px; text-align: center; font-size: 28px; }
+.card.make { border-style: dashed; }
+@media (max-width: 640px) {
+  .board { gap: 8px; } .tile { min-height: 70px; }
+  .q-row { grid-template-columns: 56px 1fr; } .q-row > .icon-btn { grid-column: 2; justify-self: end; } .q-emoji { width: 56px; }
+}

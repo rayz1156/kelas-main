@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bina Set · Kelas Main</title>
+  <meta name="theme-color" content="#e2552d">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="./"><span class="logo-mark">🎲</span>Kelas Main</a>
+    <span class="spacer"></span>
+    <a class="icon-btn" href="./" style="text-decoration:none">← Permainan</a>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Bina Set Soalan</h1>
+      <p>Tulis soalan sendiri untuk mana-mana subjek dan Standard Pembelajaran. Set anda boleh dimainkan dalam mod Klasik, Papan Kejutan atau Lumba Masa, dan dikongsi melalui pautan.</p>
+    </section>
+    <div id="view"></div>
+  </main>
+
+  <footer class="wrap">Set disimpan dalam pelayar peranti ini. Pautan kongsi mengandungi soalan sahaja, tanpa data murid.</footer>
+
+  <script type="module">
+    import { h, store, uid, applyTheme, registerSW, downloadFile } from './js/core.js';
+    import { TP, YEARS, SUBJECTS, SAMPLE_SET, maxTPFor } from './js/data.js';
+    import { encodeSet, sanitizeSet } from './js/games/set.js';
+    applyTheme(); registerSW();
+    const view = document.getElementById('view');
+
+    function list() {
+      const sets = store.get('sets', []);
+      const fileInput = h('input', { type: 'file', accept: '.json,application/json', style: { display: 'none' } });
+      fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        try {
+          const set = sanitizeSet(JSON.parse(await file.text()));
+          if (!set) throw new Error('bad');
+          store.set('sets', [...sets, { ...set, id: uid() }]); list();
+        } catch { alertBox.textContent = 'Fail ini bukan set Kelas Main yang sah.'; }
+      });
+      const alertBox = h('p', { style: { color: 'var(--no)', minHeight: '1.2em' } });
+
+      view.replaceChildren(
+        h('div', { class: 'row', style: { marginBottom: '16px' } },
+          h('button', { class: 'btn green', type: 'button', onclick: () => edit() }, '➕ Set baharu'),
+          h('button', { class: 'btn secondary', type: 'button', onclick: () => edit(null, structuredClone(SAMPLE_SET)) }, '✨ Mula daripada contoh'),
+          h('button', { class: 'btn secondary', type: 'button', onclick: () => fileInput.click() }, '📂 Import fail'),
+          fileInput),
+        alertBox,
+        sets.length ? h('div', { class: 'grid' }, sets.map((s) => {
+          const share = h('button', { class: 'icon-btn', type: 'button' }, '🔗 Salin pautan');
+          share.addEventListener('click', async () => {
+            const url = new URL('game.html?g=set', location.href).href + '#s=' + encodeSet(s);
+            try { await navigator.clipboard.writeText(url); share.textContent = '✅ Pautan disalin'; }
+            catch { prompt('Salin pautan ini:', url); }
+          });
+          return h('div', { class: 'card' },
+            h('div', { class: 'emoji' }, s.items[0]?.e || '📝'),
+            h('h3', {}, s.title),
+            h('div', { class: 'tags' }, h('span', { class: 'tag' }, s.year), h('span', { class: 'tag' }, s.subject), h('span', { class: 'tag' }, `TP${s.tp}`)),
+            h('p', {}, `${s.items.length} soalan`),
+            s.sp.length ? h('div', { class: 'tags' }, s.sp.map((c) => h('span', { class: 'tag sp' }, 'SP ' + c))) : null,
+            h('div', { class: 'row' },
+              h('a', { class: 'btn', href: `game.html?g=set&id=${encodeURIComponent(s.id)}`, style: { textDecoration: 'none', fontSize: '18px', padding: '10px 18px' } }, '▶ Main'),
+              h('button', { class: 'icon-btn', type: 'button', onclick: () => edit(s.id) }, '✏️'),
+              share,
+              h('button', { class: 'icon-btn', type: 'button', title: 'Muat turun fail', onclick: () => downloadFile(`${s.title.replace(/\W+/g, '-')}.json`, JSON.stringify(s, null, 2), 'application/json') }, '⬇️'),
+              h('button', { class: 'icon-btn', type: 'button', title: 'Padam', onclick: () => { if (confirm(`Padam set "${s.title}"?`)) { store.set('sets', sets.filter((x) => x.id !== s.id)); list(); } } }, '🗑️')));
+        })) : h('div', { class: 'panel empty' }, 'Belum ada set. Tekan "Set baharu" atau mula daripada contoh.'),
+      );
+    }
+
+    function edit(id, draft) {
+      const sets = store.get('sets', []);
+      const base = draft || sets.find((s) => s.id === id) || { title: '', subject: 'Bahasa Melayu', year: 'Tahun 1', sp: [], tp: 1, items: [{ e: '', q: '', a: '', wrong: [] }] };
+      const s = structuredClone(base);
+
+      const title = h('input', { type: 'text', value: s.title, placeholder: 'Contoh: Kenali Haiwan', 'aria-label': 'Tajuk set', style: { width: '100%' } });
+      const subject = h('select', { 'aria-label': 'Subjek' }, SUBJECTS.map((x) => h('option', { selected: x === s.subject }, x)));
+      const year = h('select', { 'aria-label': 'Tahun atau tingkatan' }, YEARS.map((x) => h('option', { selected: x === s.year }, x)));
+      const sp = h('input', { type: 'text', value: s.sp.join(', '), placeholder: 'Contoh: 1.1.4, 1.1.6', 'aria-label': 'Kod Standard Pembelajaran' });
+      const tp = h('select', { 'aria-label': 'Tahap sasaran' });
+      const fillTP = () => {
+        const max = maxTPFor(year.value);
+        const cur = Math.min(Number(tp.value) || s.tp, max);
+        tp.replaceChildren(...Array.from({ length: max }, (_, i) => i + 1).map((n) => h('option', { value: n, selected: n === cur }, `TP${n} ${TP[n].label}`)));
+      };
+      year.addEventListener('change', fillTP);
+      fillTP();
+
+      const rows = h('div', { class: 'q-rows' });
+      const row = (it) => {
+        const e = h('input', { type: 'text', value: it.e, placeholder: '🙂', maxlength: 8, 'aria-label': 'Emoji', class: 'q-emoji' });
+        const q = h('textarea', { placeholder: 'Soalan', 'aria-label': 'Soalan', rows: 2 }); q.value = it.q;
+        const a = h('input', { type: 'text', value: it.a, placeholder: 'Jawapan betul', 'aria-label': 'Jawapan betul' });
+        const w = h('input', { type: 'text', value: it.wrong.join(', '), placeholder: 'Pilihan salah (pisahkan dengan koma). Kosongkan untuk jawapan lisan', 'aria-label': 'Pilihan salah' });
+        const box = h('div', { class: 'q-row' }, e, h('div', { class: 'q-fields' }, q, a, w),
+          h('button', { class: 'icon-btn', type: 'button', title: 'Buang soalan', onclick: () => box.remove() }, '🗑️'));
+        box.read = () => ({ e: e.value.trim(), q: q.value.trim(), a: a.value.trim(), wrong: w.value.split(',').map((x) => x.trim()).filter(Boolean).slice(0, 3) });
+        return box;
+      };
+      s.items.forEach((it) => rows.append(row(it)));
+      const msg = h('p', { style: { color: 'var(--no)', minHeight: '1.2em' } });
+
+      const save = () => {
+        const items = [...rows.children].map((r) => r.read()).filter((it) => it.q && it.a);
+        if (!title.value.trim()) { msg.textContent = 'Isi tajuk set.'; return; }
+        if (items.length < 2) { msg.textContent = 'Tulis sekurang-kurangnya 2 soalan yang lengkap dengan jawapan.'; return; }
+        const clean = sanitizeSet({
+          id: id || uid(), title: title.value, subject: subject.value, year: year.value,
+          sp: sp.value.split(',').map((x) => x.trim()).filter(Boolean), tp: Number(tp.value), items,
+        });
+        const next = id ? sets.map((x) => (x.id === id ? clean : x)) : [...sets, clean];
+        if (store.set('sets', next)) list();
+        else msg.textContent = 'Storan pelayar disekat. Cuba pelayar lain.';
+      };
+
+      view.replaceChildren(
+        h('section', { class: 'panel' },
+          h('h2', {}, id ? 'Sunting set' : 'Set baharu'),
+          h('div', { class: 'form-grid' },
+            h('label', {}, 'Tajuk', title),
+            h('label', {}, 'Subjek', subject),
+            h('label', {}, 'Tahun / Tingkatan', year),
+            h('label', {}, 'Kod SP (pilihan)', sp),
+            h('label', {}, 'Tahap sasaran', tp))),
+        h('section', { class: 'panel' },
+          h('h2', {}, 'Soalan'),
+          h('p', { style: { color: 'var(--ink-soft)', marginTop: 0 } }, 'Ada pilihan salah: soalan aneka pilihan. Tiada pilihan salah: murid menjawab secara lisan dan guru menanda Betul atau Salah.'),
+          rows,
+          h('button', { class: 'btn secondary', type: 'button', onclick: () => rows.append(row({ e: '', q: '', a: '', wrong: [] })) }, '➕ Tambah soalan')),
+        msg,
+        h('div', { class: 'row', style: { marginBottom: '30px' } },
+          h('button', { class: 'btn green', type: 'button', onclick: save }, '💾 Simpan set'),
+          h('button', { class: 'btn secondary', type: 'button', onclick: list }, 'Batal')),
+      );
+    }
+
+    list();
+  </script>
+</body>
+</html>

@@ -30,6 +30,9 @@
     <div class="filters" id="filters" role="group" aria-label="Tapis permainan"></div>
     <div class="grid" id="ready"></div>
 
+    <h2 class="section-title" id="mineTitle" hidden>📝 Set saya</h2>
+    <div class="grid" id="mine"></div>
+
     <h2 class="section-title">Akan datang</h2>
     <div class="grid" id="soon"></div>
 
@@ -58,6 +61,7 @@
         h('div', { class: 'tags' }, h('span', { class: 'tag' }, g.level), h('span', { class: 'tag' }, g.subject)),
         h('p', {}, g.desc),
         g.sp.length ? h('div', { class: 'tags' }, g.sp.map((s) => h('span', { class: 'tag sp' }, 'SP ' + s))) : null,
+        g.ready ? h('div', { class: 'tags' }, h('span', { class: 'tag' }, '🎯 Klasik · 🎁 Papan Kejutan · ⏱️ Lumba Masa')) : null,
       ];
       return g.ready ? h('a', { class: 'card', href: `game.html?g=${g.id}` }, body) : h('div', { class: 'card soon', 'aria-disabled': 'true' }, body);
     };
@@ -74,7 +78,18 @@
         h('span', { style: { width: '12px' } }),
         ...subjects.map((s) => chip(s, subject, (v) => { subject = v; store.set('home:subject', v); })));
       const ready = GAMES.filter((g) => g.ready && fit(g));
-      document.getElementById('ready').replaceChildren(...(ready.length ? ready.map(card) : [h('p', { class: 'empty' }, 'Tiada permainan untuk pilihan ini lagi.')]));
+      const make = h('a', { class: 'card make', href: 'bina.html' },
+        h('div', { class: 'emoji' }, '🛠️'), h('h3', {}, 'Bina Set Soalan'),
+        h('p', {}, 'Tulis soalan sendiri untuk mana-mana subjek dan SP. Main dalam tiga mod dan kongsi dengan rakan guru melalui pautan.'),
+        h('div', { class: 'tags' }, h('span', { class: 'tag' }, 'Semua subjek'), h('span', { class: 'tag' }, 'Semua tahun')));
+      document.getElementById('ready').replaceChildren(...ready.map(card), make);
+      const sets = store.get('sets', []).filter((s) => (level === 'Semua' || s.year === level) && (subject === 'Semua subjek' || s.subject === subject));
+      document.getElementById('mineTitle').hidden = !sets.length;
+      document.getElementById('mine').replaceChildren(...sets.map((s) => h('a', { class: 'card', href: `game.html?g=set&id=${encodeURIComponent(s.id)}` },
+        h('div', { class: 'emoji' }, s.items[0]?.e || '📝'), h('h3', {}, s.title),
+        h('div', { class: 'tags' }, h('span', { class: 'tag' }, s.year), h('span', { class: 'tag' }, s.subject)),
+        h('p', {}, `${s.items.length} soalan · TP${s.tp}`),
+        s.sp.length ? h('div', { class: 'tags' }, s.sp.map((c) => h('span', { class: 'tag sp' }, 'SP ' + c))) : null)));
       document.getElementById('soon').replaceChildren(...GAMES.filter((g) => !g.ready && fit(g)).map(card));
     }
     render();
