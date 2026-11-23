@@ -154,6 +154,19 @@ export const GAMES = [
     desc: 'Cari maklumat dalam berita, kenal fakta dan pendapat, buat inferens, kemudian nilai mesej tular: palsu, berat sebelah atau tidak lengkap?',
     ready: true,
   },
+  {
+    id: 'bot-banjir',
+    howto: [{ e: '🛥️', t: 'Pandu bot penyelamat', d: 'Tekan ← → (atau A dan D) untuk memilih lorong. Tekan ↑ atau Spasi untuk pergi. Di skrin sentuh, tekan sahaja kotak yang dipilih.' }, { e: '🪵', t: 'Elak kayu balak', d: 'Kayu balak hanyut merentasi sungai. Tunggu ruang kosong sebelum pergi. Terlanggar? Bot berpatah balik dan boleh cuba lagi tanpa kehilangan mata.' }, { e: '📦', t: 'Kutip kotak yang betul', d: 'Kira dahulu bersama pasukan. Kotak yang bot sampai dahulu ialah jawapan pasukan. Kekunci 1 hingga 4 terus menghantar bot ke kotak itu.' }],
+    notes: { how: ['Prototaip permainan aksi 2D. Soalan dan tahap sama seperti Misi Bantuan Banjir, tetapi jawapan dipilih dengan memandu bot.', 'Biarkan pasukan berbincang dan mengira dahulu. Kotak bantuan tidak bergerak, jadi tiada tekanan masa untuk berfikir.', 'Seorang wakil pasukan memandu menggunakan papan kekunci, tetikus atau skrin sentuh. Tukar pemandu setiap giliran.', 'Kemahiran memandu tidak menjejaskan markah: terlanggar kayu balak hanya membuat bot berpatah balik.'], extend: 'Minta murid mencipta peraturan permainan sendiri yang menggunakan FSTB atau GSTK, contohnya agihan kotak bantuan kepada beberapa kampung.' },
+    title: 'Bot Penyelamat Banjir',
+    emoji: '🛥️',
+    subject: 'Matematik',
+    level: 'Tingkatan 1',
+    topic: '2.0 Faktor dan Gandaan · aksi 2D',
+    sp: ['2.1.1', '2.1.2', '2.1.3', '2.1.4', '2.2.1', '2.2.2', '2.2.3'],
+    desc: 'Permainan aksi 2D (prototaip): pandu bot penyelamat, elak kayu balak dan kutip kotak bantuan dengan jawapan faktor, gandaan, FSTB atau GSTK yang betul.',
+    ready: true,
+  },
   { id: 'kampung-sejahtera', title: 'Kampung Sejahtera', emoji: '🏡', subject: 'Pembentukan Karakter', level: 'Semua', topic: 'Slot Pembentukan Karakter', sp: [], desc: 'Simulasi kelas: setiap pilihan memberi kesan kepada seluruh kampung.', ready: false },
 ];
 
