@@ -422,3 +422,14 @@ a.game-card:hover .thumb .emoji { transform: scale(1.08) rotate(-4deg); transiti
 .form-msg.no { color: var(--no); }
 .tags .spacer { flex: 1; }
 .join-strip .btn, .member-grid .btn, .member-card .btn { text-decoration: none; }
+
+/* Maklum balas form */
+.fb-form { display: grid; gap: 14px; }
+.fb-label { display: grid; gap: 6px; font-weight: 800; }
+.fb-label select, .fb-label textarea { font: inherit; font-weight: 600; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface); color: var(--ink); width: 100%; box-sizing: border-box; }
+.fb-label textarea { resize: vertical; min-height: 120px; }
+.fb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.fb-chips .chip { min-height: 40px; padding: 6px 14px; font-size: 16px; }
+.fb-stars { display: flex; gap: 4px; }
+.fb-stars button { border: 0; background: none; font-size: 32px; line-height: 1; color: #e0a800; min-width: 44px; min-height: 44px; cursor: pointer; }
+.fb .note { margin: 0; }

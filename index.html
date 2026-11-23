@@ -82,6 +82,7 @@
   </main>
 
   <footer class="wrap">
+    <p id="fbSlot" style="margin:0 0 10px"></p>
     JomMain · prototaip untuk guru Malaysia · Selari dengan Dokumen Kurikulum KP2027 (BPK, 2026). Kod standard merujuk kepada Standard Pembelajaran dalam dokumen rasmi.
   </footer>
 
@@ -248,6 +249,7 @@
     render();
     memberReady.then(() => {
       document.getElementById('memberSlot').replaceChildren(badge());
+      import('./js/maklum.js').then(({ feedbackButton }) => document.getElementById('fbSlot').replaceChildren(feedbackButton({}), ' Ada cadangan atau jumpa masalah? Beritahu kami.')).catch(() => {});
       const strip = document.getElementById('joinStrip');
       strip.hidden = isMember();
       if (!isMember()) strip.replaceChildren(

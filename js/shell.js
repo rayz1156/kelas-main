@@ -4,6 +4,7 @@ import { $, h, shuffle, store, sfx, speak, confetti, toggleFullscreen, isMuted, 
 import { TP, ADAB, MODES, gameById, maxTPFor, spLabel } from './data.js';
 import { loadSet, buildSetGame } from './games/set.js';
 import { ready as memberReady, isMember, gate, badge, FREE_MAX_TP, FREE_MAX_TEAMS } from './ahli.js';
+import { feedbackButton } from './maklum.js';
 
 const TEAM_PRESETS = [
   { name: 'Harimau', icon: '🐯', color: '#e08a00' },
@@ -181,7 +182,7 @@ class Shell {
           h('span', { class: 'tag' }, `${this.meta.subject} · ${this.meta.level}`),
           h('span', { class: 'tag' }, this.meta.topic),
           this.set?.shared ? h('button', { class: 'chip', type: 'button', onclick: (e) => this.saveShared(e.currentTarget) }, '💾 Simpan ke Set Saya') : null,
-          h('span', { class: 'spacer' }), badge()),
+          h('span', { class: 'spacer' }), feedbackButton({ game: this.meta.id }), badge()),
         h('button', { class: 'btn tut-open', type: 'button', onclick: () => this.tutorial() }, '🎓 Tutorial: cara bermain (guru dan murid)'),
         notes ? h('details', { class: 'panel notes' },
           h('summary', {}, '📘 Nota guru'),
@@ -622,7 +623,8 @@ class Shell {
           h('button', { class: 'btn secondary', type: 'button', onclick: () => this.play() }, '🔁 Main lagi'),
           nextLevel ? h('button', { class: 'btn secondary', type: 'button', onclick: () => { if (this.locked('level', nextLevel)) { gate(`TP${nextLevel} ${TP[nextLevel].label}`); return; } this.cfg.level = nextLevel; this.play(); } }, `${this.locked('level', nextLevel) ? '🔒' : '⬆️'} TP${nextLevel} seterusnya`) : null,
           h('button', { class: 'btn secondary', type: 'button', onclick: () => this.setup() }, '⚙️ Tetapan'),
-          h('a', { class: 'btn secondary', href: './laporan.html', style: { textDecoration: 'none' } }, '📊 Laporan')),
+          h('a', { class: 'btn secondary', href: './laporan.html', style: { textDecoration: 'none' } }, '📊 Laporan'),
+          feedbackButton({ game: this.meta.id, level: this.cfg.level, mode: this.cfg.mode }, 'btn secondary')),
       ),
     );
     this.renderScore();

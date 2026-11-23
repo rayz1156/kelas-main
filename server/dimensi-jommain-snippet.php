@@ -7,6 +7,7 @@
  * JomMain checks the signature in the browser with the public key, so it stays a static site.
  *   GET  /wp-json/dimensi/v1/jommain/kunci   public key (JWK x, y)
  *   POST /wp-json/dimensi/v1/jommain/pautan  {emel}  emails a sign-in link to a registered member
+ *   POST /wp-json/dimensi/v1/jommain/maklum-balas  {t, ...}  members' feedback, emailed to the developer
  *   /dimensi/v1/daftar success responses also carry the ticket as "jm".
  * On /daftar/?dari=jommain a banner is shown and the new member is sent back to JomMain after signing up.
  */
@@ -191,3 +192,137 @@ add_action( 'wp_footer', function () {
 </script>
 	<?php
 } );
+
+/* ---------- Maklum balas (feedback) from JomMain, members only ----------
+ * POST /wp-json/dimensi/v1/jommain/maklum-balas
+ *   {t, permainan, tajuk, jenis, daripada, mesej, bintang, konteks}
+ * The ticket is checked here as well, and the member must still be in the directory.
+ * The email goes to option dm_jm_mb_to (default: the site admin email), with Reply-To set to the member.
+ */
+
+/** Raw r||s (64 bytes) back to the DER form that openssl_verify expects. */
+function dm_jm_raw_to_der( $raw ) {
+	$der = '';
+	foreach ( array( substr( $raw, 0, 32 ), substr( $raw, 32, 32 ) ) as $v ) {
+		$v = ltrim( $v, "\0" );
+		if ( $v === '' || ( ord( $v[0] ) & 0x80 ) ) {
+			$v = "\0" . $v;
+		}
+		$der .= "\x02" . chr( strlen( $v ) ) . $v;
+	}
+	return "\x30" . chr( strlen( $der ) ) . $der;
+}
+
+function dm_jm_b64d( $s ) {
+	$s = strtr( (string) $s, '-_', '+/' );
+	return base64_decode( $s . str_repeat( '=', ( 4 - strlen( $s ) % 4 ) % 4 ), true );
+}
+
+/** Returns the ticket payload if it is signed by this site and not expired, else null. */
+function dm_jm_semak_tiket( $t ) {
+	$k = dm_jm_keys();
+	$p = explode( '.', (string) $t );
+	if ( ! $k || count( $p ) !== 2 ) {
+		return null;
+	}
+	$sig = dm_jm_b64d( $p[1] );
+	if ( ! $sig || strlen( $sig ) !== 64 ) {
+		return null;
+	}
+	$d = openssl_pkey_get_details( openssl_pkey_get_private( $k['priv'] ) );
+	if ( empty( $d['key'] ) || openssl_verify( $p[0], dm_jm_raw_to_der( $sig ), $d['key'], OPENSSL_ALGO_SHA256 ) !== 1 ) {
+		return null;
+	}
+	$j = json_decode( (string) dm_jm_b64d( $p[0] ), true );
+	return ( is_array( $j ) && ! empty( $j['no'] ) && (int) $j['exp'] > time() ) ? $j : null;
+}
+
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'dimensi/v1', '/jommain/maklum-balas', array(
+		'methods'             => 'POST',
+		'callback'            => 'dm_jm_maklum_balas',
+		'permission_callback' => '__return_true',
+	) );
+} );
+
+function dm_jm_maklum_balas( WP_REST_Request $r ) {
+	$no_resp = function ( $mesej, $status ) {
+		return new WP_REST_Response( array( 'ok' => false, 'mesej' => $mesej ), $status );
+	};
+	$p = dm_jm_semak_tiket( $r->get_param( 't' ) );
+	if ( ! $p ) {
+		return $no_resp( 'Maklum balas hanya untuk ahli DIMENSI. Sila log masuk semula sebagai ahli.', 403 );
+	}
+	$ids = get_posts( array(
+		'post_type'   => 'dm_ahli',
+		'post_status' => 'publish',
+		'meta_key'    => 'dm_no',
+		'meta_value'  => (string) $p['no'],
+		'fields'      => 'ids',
+		'numberposts' => 1,
+	) );
+	if ( ! $ids ) {
+		return $no_resp( 'Keahlian ini tidak lagi aktif.', 403 );
+	}
+	$mesej = trim( sanitize_textarea_field( (string) $r->get_param( 'mesej' ) ) );
+	if ( mb_strlen( $mesej ) < 10 ) {
+		return $no_resp( 'Tulis sekurang-kurangnya satu ayat (10 aksara).', 400 );
+	}
+	$mesej = mb_substr( $mesej, 0, 3000 );
+
+	// Limits: 5 per member per hour, 20 per member per day, 15 per IP per hour.
+	$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+	$kunci = array(
+		array( 'dm_jm_mb_h_' . md5( $p['no'] ), 5, HOUR_IN_SECONDS ),
+		array( 'dm_jm_mb_d_' . md5( $p['no'] ), 20, DAY_IN_SECONDS ),
+		array( 'dm_jm_mb_ip_' . md5( $ip ), 15, HOUR_IN_SECONDS ),
+	);
+	foreach ( $kunci as $c ) {
+		if ( (int) get_transient( $c[0] ) >= $c[1] ) {
+			return $no_resp( 'Terima kasih! Had maklum balas untuk sekarang sudah dicapai. Cuba lagi kemudian.', 429 );
+		}
+	}
+
+	$teks = function ( $k, $max = 120 ) use ( $r ) {
+		return mb_substr( sanitize_text_field( (string) $r->get_param( $k ) ), 0, $max );
+	};
+	$jenis    = $teks( 'jenis', 40 );
+	$tajuk    = $teks( 'tajuk' );
+	$game     = $teks( 'permainan', 60 );
+	$daripada = $teks( 'daripada', 20 );
+	$konteks  = $teks( 'konteks', 400 );
+	$bintang  = max( 0, min( 5, (int) $r->get_param( 'bintang' ) ) );
+	$pid      = $ids[0];
+	$nama     = get_post_field( 'post_title', $pid );
+	$emel     = get_post_meta( $pid, 'dm_emel', true );
+
+	$baris = function ( $l, $v ) {
+		return $v === '' ? '' : '<tr><td style="padding:4px 12px 4px 0;color:#5b6270;vertical-align:top">' . $l . '</td><td style="padding:4px 0"><b>' . esc_html( $v ) . '</b></td></tr>';
+	};
+	$html = '<div style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:#1f2430;max-width:640px">'
+		. '<h2 style="margin:0 0 12px">💬 Maklum balas JomMain</h2>'
+		. '<table style="border-collapse:collapse;font-size:15px">'
+		. $baris( 'Permainan', $tajuk ? $tajuk . ( $game ? " ($game)" : '' ) : $game )
+		. $baris( 'Jenis', $jenis )
+		. $baris( 'Penilaian', $bintang ? str_repeat( '★', $bintang ) . str_repeat( '☆', 5 - $bintang ) : '' )
+		. $baris( 'Daripada', $daripada )
+		. $baris( 'Ahli', $nama . ' · ' . $p['no'] )
+		. '</table>'
+		. '<div style="margin:16px 0;padding:14px 16px;background:#f5f6f8;border-left:4px solid #e2552d;border-radius:8px;white-space:pre-wrap">' . esc_html( $mesej ) . '</div>'
+		. ( $konteks ? '<p style="color:#5b6270;font-size:13px">Konteks: ' . esc_html( $konteks ) . '</p>' : '' )
+		. '<p style="color:#5b6270;font-size:13px">Tekan Balas untuk menjawab terus kepada ahli ini.</p></div>';
+
+	$ke      = get_option( 'dm_jm_mb_to' ) ?: get_option( 'admin_email' );
+	$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+	if ( is_email( $emel ) ) {
+		$headers[] = 'Reply-To: ' . str_replace( array( "\r", "\n", '<', '>', ',' ), '', $nama ) . ' <' . $emel . '>';
+	}
+	$subjek = 'Maklum balas JomMain: ' . ( $jenis ?: 'Umum' ) . ( $tajuk ? ' · ' . $tajuk : '' );
+	if ( ! wp_mail( $ke, $subjek, $html, $headers ) ) {
+		return $no_resp( 'Maklum balas tidak dapat dihantar sekarang. Cuba lagi sebentar lagi.', 502 );
+	}
+	foreach ( $kunci as $c ) {
+		set_transient( $c[0], (int) get_transient( $c[0] ) + 1, $c[2] );
+	}
+	return new WP_REST_Response( array( 'ok' => true, 'mesej' => 'Terima kasih! Maklum balas anda sudah dihantar kepada pembangun JomMain.' ), 200 );
+}
