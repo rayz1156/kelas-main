@@ -163,7 +163,8 @@ add_action( 'wp_footer', function () {
 		dari = sessionStorage.getItem('dm_dari') === 'jommain';
 	} catch (e) { dari = /[?&]dari=jommain(&|$)/.test(location.search); }
 	if (!dari) return;
-	var f = document.querySelector('form');
+	var f = null;
+	for (var n = 0; n < document.forms.length; n++) if (document.forms[n].elements.kategori) { f = document.forms[n]; break; }
 	if (f) {
 		var b = document.createElement('div');
 		b.setAttribute('style', 'background:#fff4e5;border:2px solid #e2552d;border-radius:14px;padding:14px 16px;margin:0 0 18px;font-size:16px;line-height:1.5;color:#1f2430');
