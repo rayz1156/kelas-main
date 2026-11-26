@@ -14,6 +14,9 @@ const JENIS = [
   ['❤️', 'Pujian'],
 ];
 
+const TIP_GURU = 'Contoh: Di TP3, soalan nombor 4 ada dua jawapan yang betul. Murid keliru.';
+const TIP_MURID = 'Contoh: Seronok! Saya mahu lebih banyak soalan. Butang merah susah ditekan.';
+
 /** Small button that opens the form. `ctx` = {game, level, mode} for the current screen. */
 export const feedbackButton = (ctx = {}, cls = 'chip') =>
   h('button', { class: cls, type: 'button', onclick: () => openFeedback(ctx) }, isMember() ? '💬 Maklum balas' : '🔒 Maklum balas');
@@ -47,13 +50,13 @@ export function openFeedback(ctx = {}) {
   }, n <= bintang ? '★' : '☆')));
   drawStars();
 
-  const text = h('textarea', { rows: 5, maxlength: 3000, required: true, placeholder: 'Contoh: Di TP3, soalan nombor 4 ada dua jawapan yang betul. Murid keliru.' });
+  const text = h('textarea', { rows: 5, maxlength: 3000, required: true, placeholder: TIP_GURU });
   const msg = h('p', { class: 'form-msg', role: 'status' });
   const send = h('button', { class: 'btn green', type: 'submit' }, '📨 Hantar maklum balas');
 
   const form = h('form', { class: 'fb-form', onsubmit: async (e) => {
     e.preventDefault();
-    if (text.value.trim().length < 10) { msg.className = 'form-msg no'; msg.textContent = 'Tulis sekurang-kurangnya satu ayat.'; text.focus(); return; }
+    if (text.value.trim().length < 3) { msg.className = 'form-msg no'; msg.textContent = 'Tulis sedikit maklum balas dahulu, contohnya "Seronok!" atau apa yang perlu dibaiki.'; text.focus(); return; }
     const g = GAMES.find((x) => x.id === game.value);
     const konteks = [ctx.level ? `TP${ctx.level}` : '', ctx.mode || '', location.pathname + location.search, `${innerWidth}x${innerHeight}`, navigator.userAgent.slice(0, 160)].filter(Boolean).join(' · ');
     send.disabled = true; msg.className = 'form-msg'; msg.textContent = 'Sedang dihantar…';
@@ -73,7 +76,10 @@ export function openFeedback(ctx = {}) {
   } },
     h('label', { class: 'fb-label' }, 'Permainan', game),
     h('div', { class: 'fb-label' }, 'Jenis maklum balas', chips(JENIS, () => jenis, (v) => (jenis = v))),
-    h('div', { class: 'fb-label' }, 'Daripada', chips([['🧑‍🏫', 'Guru'], ['🧒', 'Murid']], () => daripada, (v) => (daripada = v || 'Guru'))),
+    h('div', { class: 'fb-label' }, 'Daripada', chips([['🧑‍🏫', 'Guru'], ['🧒', 'Murid']], () => daripada, (v) => {
+      daripada = v || 'Guru';
+      text.placeholder = daripada === 'Murid' ? TIP_MURID : TIP_GURU;
+    })),
     h('div', { class: 'fb-label' }, 'Penilaian (pilihan)', stars),
     h('label', { class: 'fb-label' }, 'Maklum balas anda', text),
     h('p', { class: 'note' }, 'Jangan tulis nama penuh murid. Pembangun boleh membalas terus ke e-mel ahli anda.'),

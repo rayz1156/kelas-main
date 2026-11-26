@@ -265,8 +265,8 @@ function dm_jm_maklum_balas( WP_REST_Request $r ) {
 		return $no_resp( 'Keahlian ini tidak lagi aktif.', 403 );
 	}
 	$mesej = trim( sanitize_textarea_field( (string) $r->get_param( 'mesej' ) ) );
-	if ( mb_strlen( $mesej ) < 10 ) {
-		return $no_resp( 'Tulis sekurang-kurangnya satu ayat (10 aksara).', 400 );
+	if ( mb_strlen( $mesej ) < 3 ) {
+		return $no_resp( 'Tulis sedikit maklum balas dahulu.', 400 );
 	}
 	$mesej = mb_substr( $mesej, 0, 3000 );
 
