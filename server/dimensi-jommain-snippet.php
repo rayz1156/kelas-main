@@ -318,7 +318,13 @@ function dm_jm_maklum_balas( WP_REST_Request $r ) {
 		$headers[] = 'Reply-To: ' . str_replace( array( "\r", "\n", '<', '>', ',' ), '', $nama ) . ' <' . $emel . '>';
 	}
 	$subjek = 'Maklum balas JomMain: ' . ( $jenis ?: 'Umum' ) . ( $tajuk ? ' · ' . $tajuk : '' );
-	if ( ! wp_mail( $ke, $subjek, $html, $headers ) ) {
+	// FluentSMTP's wp_mail can report false after Emailit has accepted the mail, so trust Emailit's own result when it is there.
+	unset( $GLOBALS['dm_emailit_last'] );
+	$sent = wp_mail( $ke, $subjek, $html, $headers );
+	if ( isset( $GLOBALS['dm_emailit_last'] ) ) {
+		$sent = $GLOBALS['dm_emailit_last'];
+	}
+	if ( ! $sent ) {
 		return $no_resp( 'Maklum balas tidak dapat dihantar sekarang. Cuba lagi sebentar lagi.', 502 );
 	}
 	foreach ( $kunci as $c ) {
